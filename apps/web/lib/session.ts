@@ -53,28 +53,28 @@ export async function deleteSession () {
     (await cookies()).delete("session");
 }
 
-export async function updateTokens({accessToken, refreshToken}: {accessToken: string, refreshToken: string}) {
-  const cookie = (await cookies()).get("session")?.value;
+// export async function updateTokens({accessToken, refreshToken}: {accessToken: string, refreshToken: string}) {
+//   const cookie = (await cookies()).get("session")?.value;
 
-  if(!cookie) throw new Error("No session found!");
+//   if(!cookie) throw new Error("No session found!");
 
-  try {
-    const {payload} = await jwtVerify<Session>(cookie, encodedKey, {
-      algorithms: ["HS256"],
-    });
+//   try {
+//     const {payload} = await jwtVerify<Session>(cookie, encodedKey, {
+//       algorithms: ["HS256"],
+//     });
 
-    if(!payload) throw new Error("Session not found!");
+//     if(!payload) throw new Error("Session not found!");
 
-    const newPayload: Session = {
-      user: {
-        ...payload.user
-      },
-      accessToken,
-      refreshToken,
-    }
+//     const newPayload: Session = {
+//       user: {
+//         ...payload.user
+//       },
+//       accessToken,
+//       refreshToken,
+//     }
 
-    await createSession(newPayload);
-  } catch (error) {
-    throw new Error("Failed to update session");
-  }
-}
+//     await createSession(newPayload);
+//   } catch (error) {
+//     throw new Error("Failed to update session");
+//   }
+// }

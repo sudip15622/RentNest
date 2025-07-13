@@ -10,7 +10,7 @@ import {
   LoginFormType,
 } from "./types";
 import { treeifyError } from "zod";
-import { createSession, deleteSession, updateTokens } from "./session";
+import { createSession } from "./session";
 
 export async function handleSignup(
   details: SignupFormType

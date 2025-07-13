@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '../../../../lib/session';
+import { getSession, createSession } from '../../../../lib/session';
 import { refreshToken } from '../../../../lib/auth';
-import { createSession } from '../../../../lib/session';
 
 export async function GET(request: NextRequest) {
   try {
