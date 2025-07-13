@@ -11,10 +11,21 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.2.0",
     "@repo/ui": "*",
+    "@tailwindcss/postcss": "^4.1.11",
+    "jose": "^6.0.11",
     "next": "^15.3.0",
+    "postcss": "^8.5.6",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.60.0",
+    "react-icons": "^5.5.0",
+    "react-spinners": "^0.17.0",
+    "tailwindcss": "^4.1.11",
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",

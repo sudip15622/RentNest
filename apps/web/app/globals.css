@@ -1,50 +1,69 @@
+@import "tailwindcss";
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f2f1ed;
+  --foreground: #313330;
+  --foreground-sec: #5f5e5e;
+  --border: #bab9b6;
+  --blue: #7266ff;
+  --blue-dark: #5849fc;
+  --blue-light: #d3cff3;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #F8F9F8;
   }
+} */
+
+* {
+  box-sizing: border-box;
+}
+/* For WebKit browsers (Chrome, Safari, newer Edge) */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Standard property (Firefox, IE, Edge) */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  /* transition: background-color 0.2s linear, color 0.2s linear; */
 }
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
   background: var(--background);
+  color: var(--foreground);
+  font-family: 'Satoshi', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-weight: 500;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+main {
+  width: 100%;
+  margin: 80px 28px;
+  padding: 0 28px;
+  max-width: 1336px;
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+button {
+  /* border: none; */
+  cursor: pointer;
+  outline: none;
 }
 
-.imgDark {
-  display: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-
-  .imgLight {
-    display: none;
-  }
-  .imgDark {
-    display: unset;
-  }
+li {
+  list-style: none;
 }
