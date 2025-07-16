@@ -11,6 +11,7 @@ import { AuthJwtPayload } from './types/auth-jwtPayload';
 import { JwtService } from '@nestjs/jwt';
 import refreshConfig from './configs/refresh.config';
 import { ConfigType } from '@nestjs/config';
+import { Role } from 'generated/prisma';
 
 @Injectable()
 export class AuthService {
@@ -37,10 +38,10 @@ export class AuthService {
     if (!isPasswordMatch)
       throw new UnauthorizedException('Invalid Credentails!');
 
-    return { id: user.id, image: user.image };
+    return { id: user.id, image: user.image, role: user.role };
   }
 
-  async login(userId: string, image: string) {
+  async login(userId: string, image: string, role: Role) {
     const { accessToken, refreshToken } = await this.generateTokens(userId);
 
     const hashedRT = await hash(refreshToken);
@@ -48,6 +49,7 @@ export class AuthService {
     return {
       id: userId,
       image,
+      role,
       accessToken,
       refreshToken,
     };
@@ -71,7 +73,7 @@ export class AuthService {
     const user = await this.userService.findById(userId);
     if (!user) throw new UnauthorizedException('User not found!');
 
-    return { id: user.id };
+    return { id: user.id, role: user.role };
   }
 
   async validateRefreshToken(userId: string, refreshToken: string) {

@@ -1,21 +1,22 @@
 "use client";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { TextField, Button } from "@mui/material";
-import { ScaleLoader } from "react-spinners";
 import { LoginFormType } from "../../../lib/types";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { handleLogin } from "../../../lib/auth";
 import Input from "../../../components/ui/Input";
+import { useToast } from "../../../contexts/ToastContext";
+import Button from "../../../components/ui/Button";
 
 export default function LoginForm() {
+  const { toast } = useToast();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/";
   const {
     control,
     handleSubmit,
     setError,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isValid, isSubmitting },
   } = useForm({
     defaultValues: {
       email: "",
@@ -28,7 +29,7 @@ export default function LoginForm() {
   const onSubmit: SubmitHandler<LoginFormType> = async (data) => {
     if (isSubmitting) return;
     if (!isValid) return;
-    const response = await handleLogin(data);
+    const response = await handleLogin(data, redirectTo);
     if (response?.errors) {
       const fieldErrors = response.errors;
 
@@ -46,9 +47,10 @@ export default function LoginForm() {
     }
 
     if (response?.message) {
-      console.log(response?.message);
+      toast(response.message, "error");
+      return;
     }
-    console.log(data);
+    toast("Login Successful!", "success");
   };
 
   return (
@@ -62,8 +64,8 @@ export default function LoginForm() {
         rules={{
           required: "Email address is required!",
         }}
-        render={({ field }) => (
-          <Input field={field} error={errors.email} label="Email Address" type="email"/>
+        render={({ field, fieldState }) => (
+          <Input field={field} error={fieldState.error} label="Email Address" type="email"/>
         )}
       />
       <Controller
@@ -72,28 +74,14 @@ export default function LoginForm() {
         rules={{
           required: "Password is required!",
         }}
-        render={({ field }) => (
-          <Input field={field} error={errors.password} label="Password" type="password"/>
+        render={({ field, fieldState }) => (
+          <Input field={field} error={fieldState.error} label="Password" type="password"/>
         )}
       />
-      <Link href={"/"} className="underline text-[var(--blue)] ml-3">
+      <Link href={"/"} className="underline text-[var(--primary)] ml-3">
         Forgot Password?
       </Link>
-      <Button
-        // disabled={!isValid || isSubmitting}
-        variant="contained"
-        type="submit"
-        sx={{
-          backgroundColor: "#7266ff",
-          color: "#f2f1ed",
-          "&:hover": {
-            backgroundColor: "#5849fc", // a darker shade for hover effect
-          },
-        }}
-        fullWidth
-      >
-        {isSubmitting ? <ScaleLoader height={21} color="#f2f1ed"/> : "Log In"}
-      </Button>
+      <Button children={"Log In"} isSubmitting={isSubmitting} type="submit"/>
     </form>
   );
 }

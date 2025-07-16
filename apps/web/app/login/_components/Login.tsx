@@ -1,11 +1,27 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import LoginForm from "./LoginForm";
 import SocialButton from "../../signup/_components/SocialButton";
 
 const Login = () => {
+  const searchParams = useSearchParams();
+  const shouldRefresh = searchParams.get('refresh');
+
+  useEffect(() => {
+    // If we're redirected here after session deletion, trigger a page refresh
+    // to update the navbar and other components
+    if (shouldRefresh === 'true') {
+      // Remove the refresh parameter from URL and reload
+      const url = new URL(window.location.href);
+      url.searchParams.delete('refresh');
+      window.history.replaceState({}, '', url.toString());
+      window.location.reload();
+    }
+  }, [shouldRefresh]);
+
   return (
     <main>
       <div className="mx-auto w-full max-w-sm shadow-xl border-1 border-[var(--border)] py-5 px-10 rounded-2xl flex flex-col items-center gap-y-5">
@@ -32,7 +48,7 @@ const Login = () => {
         <div className="flex flex-row gap-x-2 justify-center">
           <p>Don&apos;t have an account?</p>
           <Link
-            className="underline font-semibold text-[var(--blue)]"
+            className="underline font-semibold text-[var(--primary)]"
             href={"/signup"}
           >
             Sign Up

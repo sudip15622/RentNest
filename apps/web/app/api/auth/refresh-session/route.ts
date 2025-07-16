@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession, createSession } from '../../../../lib/session';
+import { getSession, createSession, deleteSession } from '../../../../lib/session';
 import { refreshToken } from '../../../../lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -10,14 +10,18 @@ export async function GET(request: NextRequest) {
     const session = await getSession();
     
     if (!session?.refreshToken) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      await deleteSession();
+      // Add a refresh parameter to trigger page reload
+      return NextResponse.redirect(new URL(`/login?redirectTo=${redirectTo}&refresh=true`, request.url));
     }
 
     // Get new tokens from backend
     const tokenResult = await refreshToken(session.refreshToken);
     
     if (!tokenResult) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      await deleteSession();
+      // Add a refresh parameter to trigger page reload
+      return NextResponse.redirect(new URL(`/login?redirectTo=${redirectTo}&refresh=true`, request.url));
     }
 
     // Update session with new tokens
@@ -33,6 +37,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL(redirectTo, request.url));
     
   } catch (error) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    await deleteSession();
+    // Add a refresh parameter to trigger page reload
+    return NextResponse.redirect(new URL('/login?refresh=true', request.url));
   }
 }

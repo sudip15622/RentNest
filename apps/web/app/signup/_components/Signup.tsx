@@ -32,7 +32,7 @@ const Signup = () => {
         <div className="flex flex-row gap-x-2 justify-center">
           <p>Already have an account?</p>
           <Link
-            className="underline font-semibold text-[var(--blue)]"
+            className="underline font-semibold text-[var(--primary)]"
             href={"/login"}
           >
             Log In

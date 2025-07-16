@@ -28,3 +28,9 @@ export const LoginFormSchema = z
   .strict();
 
 export type LoginFormType = z.infer<typeof LoginFormSchema>;
+
+export enum Role {
+  admin = "admin",
+  renter = "renter",
+  owner = "owner",
+}

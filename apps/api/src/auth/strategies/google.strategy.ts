@@ -17,16 +17,26 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       clientSecret: googleConfig.clientSecret!,
       callbackURL: googleConfig.callbackURL!,
       scope: ['email', 'profile'],
+      passReqToCallback: true,
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) {
+  async validate(req: any, accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) {
     const user = await this.authService.validateGoogleUser({
         email: profile.emails[0].value,
         name: profile.displayName,
         image: profile.photos[0].value,
     });
 
-    done (null, user);
+    // Extract state from request query parameters
+    const state = req.query?.state || req.body?.state || req.params?.state;
+
+    // Attach the state parameter for later use
+    const userWithState = {
+      ...user,
+      oauthState: state
+    };
+
+    done (null, userWithState);
   }
 }

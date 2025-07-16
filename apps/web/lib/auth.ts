@@ -13,8 +13,10 @@ import { treeifyError } from "zod";
 import { createSession } from "./session";
 
 export async function handleSignup(
-  details: SignupFormType
+  details: SignupFormType,
+  redirectTo?: string,
 ): Promise<CustomFormState> {
+  const validRedirect = redirectTo ? redirectTo : "/login";
   const validationFields = SignupFormSchema.safeParse(details);
 
   if (!validationFields.success) {
@@ -37,18 +39,20 @@ export async function handleSignup(
   });
 
   if (response.ok) {
-    redirect("/login");
+    redirect(validRedirect);
   } else {
     return {
       message:
-        response.status === 409 ? "User already exists!" : response.statusText,
+        response.status === 409 ? "User already exists!" : response.statusText || "Something went wrong!",
     };
   }
 }
 
 export async function handleLogin(
-  details: LoginFormType
+  details: LoginFormType,
+  redirectTo?: string,
 ): Promise<CustomFormState> {
+  const validRedirect = redirectTo ? redirectTo : "/";
   const validationFields = LoginFormSchema.safeParse(details);
 
   if (!validationFields.success) {
@@ -76,16 +80,17 @@ export async function handleLogin(
       user: {
         id: result.id,
         image: result.image,
+        role: result.role,
       },
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
 
-    redirect("/");
+    redirect(validRedirect);
   } else {
     return {
       message:
-        response.status === 401 ? "Invalid Credentails!" : response.statusText,
+        response.status === 401 ? "Invalid Credentails!" : response.statusText || "Something went wrong!",
     };
   }
 }

@@ -2,24 +2,25 @@
 import React from "react";
 import { TextField } from "@mui/material";
 
-const Input = ({
+const InputWithoutLabel = ({
   field,
   error,
-  label,
-  type,
+  placeholder,
+  type = "text",
 }: {
   field: any;
   error: any;
-  label: string;
-  type: string;
+  placeholder: string;
+  type?: string;
 }) => {
   return (
     <TextField
       {...field}
-      label={label}
+      placeholder={placeholder}
       type={type}
       size="small"
       fullWidth
+      variant="outlined"
       error={!!error}
       helperText={error?.message}
       sx={{
@@ -32,9 +33,10 @@ const Input = ({
             borderColor: !error ? "#a16207" : undefined,
           },
         },
-        "& .MuiInputLabel-root": {
-          "&.Mui-focused": {
-            color: !error ? "#a16207" : undefined,
+        "& .MuiOutlinedInput-input": {
+          "&::placeholder": {
+            color: "var(--foreground-sec)",
+            opacity: 1,
           },
         },
       }}
@@ -42,4 +44,4 @@ const Input = ({
   );
 };
 
-export default Input;
+export default InputWithoutLabel;

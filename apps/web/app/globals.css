@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-:root {
+/* :root {
   --background: #f2f1ed;
   --foreground: #313330;
   --foreground-sec: #5f5e5e;
@@ -8,12 +8,26 @@
   --blue: #7266ff;
   --blue-dark: #5849fc;
   --blue-light: #d3cff3;
-}
+} */
+:root {
+  --background: #fcfbf7;
+  --foreground: #2f2e2b;
+  --foreground-sec: #746d66;
+  --border: #d6d3cb;
 
+  --primary: #a16207;       /* warm amber */
+  --primary-dark: #854d0e;
+  --primary-light: #fef3c7;
+}
 /* @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #F8F9F8;
+    --background: #1a1a1a;
+    --foreground: #e5e5e5;
+    --foreground-sec: #a1a1a1;
+    --border: #404040;
+    --blue: #8b7dff;
+    --blue-dark: #7266ff;
+    --blue-light: #2d2850;
   }
 } */
 
@@ -40,7 +54,7 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Satoshi', sans-serif;
+  font-family: "Satoshi", sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,4 +80,72 @@ button {
 
 li {
   list-style: none;
+}
+
+/* Add this to your existing globals.css */
+
+/* Toast Container */
+.custom-toast-container {
+  z-index: 9999;
+}
+
+/* Individual Toast Styling */
+.custom-toast {
+  font-family: "Satoshi", var(--font-geist-sans) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid var(--border) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Toast Types */
+.Toastify__toast--success {
+  background: #f2f1ed !important;
+  color: #166534 !important;
+  border-color: #bbf7d0 !important;
+}
+
+.Toastify__toast--error {
+  background: #f2f1ed !important;
+  color: #dc2626 !important;
+  border-color: #fecaca !important;
+}
+
+.Toastify__toast--info {
+  background: #f2f1ed !important;
+  color: var(--primary-dark) !important;
+  border-color: var(--primary-light) !important;
+}
+
+.Toastify__toast--warning {
+  background: #f2f1ed !important;
+  color: #d97706 !important;
+  border-color: #fed7aa !important;
+}
+
+/* Progress Bar */
+.Toastify__progress-bar--success {
+  background: #22c55e !important;
+}
+
+.Toastify__progress-bar--error {
+  background: #ef4444 !important;
+}
+
+.Toastify__progress-bar--info {
+  background: var(--primary) !important;
+}
+
+.Toastify__progress-bar--warning {
+  background: #f59e0b !important;
+}
+
+/* Close Button */
+.Toastify__close-button {
+  color: currentColor !important;
+  opacity: 0.7 !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
 }

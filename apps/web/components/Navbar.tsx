@@ -36,25 +36,31 @@ const Navbar = ({ user }: { user: any }) => {
 
 
   return (
-    <nav className="sticky top-0 left-0 z-[1000] bg-[var(--background)] w-full flex items-center justify-center shadow-sm">
+    <nav className="sticky top-0 left-0 z-[1000] bg-[var(--background)] w-full flex items-center justify-center border-b-1 border-[var(--border)]">
       <div className="w-full max-w-7xl mx-7 my-2 flex flex-row items-center justify-between">
         <Link href={"/"} className="flex flex-row items-center gap-x-2">
-          <Image
+          {/* <Image
             className="w-8 h-8 object-cover"
             src={"/rentnest.png"}
             height={100}
             width={100}
             priority
             alt="logo"
-          />
+          /> */}
           <span className="text-xl font-semibold">RentNest</span>
         </Link>
         <div className="flex items-center gap-x-8">
           <Link
-            href={"/getstarted"}
-            className="transition-colors duration-200 ease-in-out hover:text-[var(--blue-dark)] text-lg"
+            href={"/search"}
+            className="transition-colors duration-200 ease-in-out hover:text-[var(--primary-dark)] text-lg"
           >
-            Become a Host
+            Search Rooms
+          </Link>
+          <Link
+            href={"/"}
+            className="transition-colors duration-200 ease-in-out hover:text-[var(--primary-dark)] text-lg"
+          >
+            List a Room
           </Link>
           {user ? (
             <div
@@ -79,20 +85,20 @@ const Navbar = ({ user }: { user: any }) => {
                 <Link
                   href={"/dashboard"}
                   onClick={() => setShowDash(false)}
-                  className="w-full flex items-center justify-start flex-row pt-4 px-3 pb-2 hover:bg-[var(--blue-light)] transition-colors duration-200 ease-in-out"
+                  className="w-full flex items-center justify-start flex-row pt-4 px-3 pb-2 hover:bg-[var(--primary-light)] transition-colors duration-200 ease-in-out"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href={"/profile"}
                   onClick={() => setShowDash(false)}
-                  className="w-full flex items-center justify-start flex-row py-2 px-3  hover:bg-[var(--blue-light)] transition-colors duration-200 ease-in-out"
+                  className="w-full flex items-center justify-start flex-row py-2 px-3  hover:bg-[var(--primary-light)] transition-colors duration-200 ease-in-out"
                 >
                   Profile
                 </Link>
                 <button
                   onClick={() => handleSignOut()}
-                  className="w-full flex items-center justify-start flex-row gap-x-2 text-red-500 pt-2 pb-4 px-3 hover:bg-[var(--blue-light)] transition-colors duration-200 ease-in-out"
+                  className="w-full flex items-center justify-start flex-row gap-x-2 text-red-500 pt-2 pb-4 px-3 hover:bg-[var(--primary-light)] transition-colors duration-200 ease-in-out"
                 >
                   <span>Log Out</span>
                   <span className="flex items-center justify-center">
@@ -105,13 +111,13 @@ const Navbar = ({ user }: { user: any }) => {
             <>
               <Link
                 href={"/login"}
-                className="transition-colors duration-200 ease-in-out hover:text-[var(--blue-dark)] text-lg"
+                className="transition-colors duration-200 ease-in-out text-[var(--primary)] hover:text-[var(--primary-dark)] text-lg"
               >
                 Login
               </Link>
               <Link
-                href={"/login"}
-                className="transition-colors duration-200 ease-in-out bg-[var(--blue)] text-[var(--background)] rounded-xl px-3 py-1 hover:bg-[var(--blue-dark)]"
+                href={"/signup"}
+                className="transition-colors duration-200 ease-in-out bg-[var(--primary)] text-[var(--background)] rounded-lg px-3 py-1 hover:bg-[var(--primary-dark)]"
               >
                 Signup
               </Link>

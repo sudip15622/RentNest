@@ -1,17 +1,21 @@
 "use client";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { TextField, Button } from "@mui/material";
-import { ScaleLoader } from "react-spinners";
 import { SignupFormType } from "../../../lib/types";
 import { handleSignup } from "../../../lib/auth";
 import Input from "../../../components/ui/Input";
+import { useToast } from "../../../contexts/ToastContext";
+import { useSearchParams } from "next/navigation";
+import Button from "../../../components/ui/Button";
 
 export default function SignupForm() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") || "/";
+  const {toast} = useToast();
   const {
     control,
     handleSubmit,
     setError,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isValid, isSubmitting },
   } = useForm({
     defaultValues: {
       name: "",
@@ -25,7 +29,7 @@ export default function SignupForm() {
   const onSubmit: SubmitHandler<SignupFormType> = async (data) => {
     if (isSubmitting) return;
     if (!isValid) return;
-    const response = await handleSignup(data);
+    const response = await handleSignup(data, redirectTo);
     if (response?.errors) {
       const fieldErrors = response.errors;
 
@@ -41,7 +45,10 @@ export default function SignupForm() {
 
       return;
     }
-    console.log(data);
+    if(response?.message) {
+      toast(response.message, "error");
+    }
+    toast("Signup Successful!", "success");
   };
 
   return (
@@ -60,8 +67,8 @@ export default function SignupForm() {
               "Name must contain only letters and a single space between words!",
           },
         }}
-        render={({ field }) => (
-          <Input field={field} error={errors.password} label="Full Name" type="text"/>
+        render={({ field, fieldState }) => (
+          <Input field={field} error={fieldState.error} label="Full Name" type="text"/>
         )}
       />
       <Controller
@@ -74,8 +81,8 @@ export default function SignupForm() {
             message: "Invalid email address!",
           },
         }}
-        render={({ field }) => (
-          <Input field={field} error={errors.email} label="Email Address" type="email"/>
+        render={({ field, fieldState }) => (
+          <Input field={field} error={fieldState.error} label="Email Address" type="email"/>
         )}
       />
       <Controller
@@ -89,25 +96,11 @@ export default function SignupForm() {
               "Password must contain uppercase, lowercase, number, special character and be at least 8 characters long!",
           },
         }}
-        render={({ field }) => (
-          <Input field={field} error={errors.password} label="Password" type="password"/>
+        render={({ field, fieldState }) => (
+          <Input field={field} error={fieldState.error} label="Password" type="password"/>
         )}
       />
-      <Button
-        // disabled={!isValid || isSubmitting}
-        variant="contained"
-        type="submit"
-        sx={{
-          backgroundColor: "#7266ff",
-          color: "#f2f1ed",
-          "&:hover": {
-            backgroundColor: "#5849fc", // a darker shade for hover effect
-          },
-        }}
-        fullWidth
-      >
-        {isSubmitting ? <ScaleLoader height={21} color="#f2f1ed"/> : "Sign Up"}
-      </Button>
+      <Button children={"Sign Up"} isSubmitting={isSubmitting} type="submit"/>
     </form>
   );
 }

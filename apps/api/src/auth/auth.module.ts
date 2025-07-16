@@ -11,6 +11,9 @@ import refreshConfig from './configs/refresh.config';
 import { RefreshStrategy } from './strategies/refresh-token.strategy';
 import googleoOauthConfig from './configs/googleo-oauth.config';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
+import { RolesGuard } from './guards/roles/roles.guard';
 
 @Module({
   imports: [
@@ -21,6 +24,20 @@ import { GoogleStrategy } from './strategies/google.strategy';
     ConfigModule.forFeature(googleoOauthConfig),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, RefreshStrategy, GoogleStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    RefreshStrategy,
+    GoogleStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard
+    }
+  ],
 })
 export class AuthModule {}

@@ -1,4 +1,4 @@
-import { getSession } from "./session";
+import { deleteSession, getSession } from "./session";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
@@ -21,27 +21,27 @@ export const authFetch = async (
   let response = await fetch(url, options);
 
   if (response.status === 401) {
-    if (!session?.refreshToken) {
-      redirect("/login");
-    }
-
     // Use provided path or try to detect from headers
     let redirectPath = currentPath;
-    
+
     if (!redirectPath) {
       const headersList = await headers();
-      const referer = headersList.get('referer');
-      const pathname = headersList.get('x-pathname');
-      
+      const referer = headersList.get("referer");
+      const pathname = headersList.get("x-pathname");
+
       if (pathname) {
         redirectPath = pathname;
       } else if (referer) {
         redirectPath = new URL(referer).pathname;
       } else {
-        redirectPath = '/';
+        redirectPath = "/";
       }
     }
-    
+
+    if (!session?.refreshToken) {
+      redirect(`/login?redirectTo=${encodeURIComponent(redirectPath)}`);
+    }
+
     const refreshUrl = `/api/auth/refresh-session?redirectTo=${encodeURIComponent(redirectPath)}`;
     redirect(refreshUrl);
   }
