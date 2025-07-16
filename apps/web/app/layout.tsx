@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import { getSession } from "../lib/session";
 import NextTopLoader from "nextjs-toploader";
 import { ToastProvider } from "../contexts/ToastContext";
@@ -37,8 +38,13 @@ export default async function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ToastProvider>
           <NextTopLoader color="#a16207" showSpinner={true} />
-          <Navbar user={session?.user} />
-          {children}
+          <div className="min-h-screen flex flex-col">
+            <Navbar user={session?.user} />
+            <div className="flex-1">
+              {children}
+            </div>
+            <Footer />
+          </div>
         </ToastProvider>
       </body>
     </html>

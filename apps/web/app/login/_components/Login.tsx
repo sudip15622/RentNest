@@ -23,36 +23,51 @@ const Login = () => {
   }, [shouldRefresh]);
 
   return (
-    <main>
-      <div className="mx-auto w-full max-w-sm shadow-xl border-1 border-[var(--border)] py-5 px-10 rounded-2xl flex flex-col items-center gap-y-5">
-        <div className="flex flex-col items-center justify-center">
-          <Image
-            className="w-10 h-10 object-cover"
-            src={"/rentnest.png"}
-            width={80}
-            height={80}
-            priority
-            alt="Room RS"
-          />
-          <h1 className="text-2xl font-semibold text-center">Log In</h1>
-        </div>
+    <main className="page-content min-h-screen bg-[var(--background)] flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-sm">
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl shadow-lg border border-[var(--border)] p-8">
+          {/* Logo and Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--background)] rounded-2xl shadow-sm mb-4 border border-[var(--border)]">
+              <Image
+                className="w-8 h-8 object-cover"
+                src={"/rentnest.png"}
+                width={32}
+                height={32}
+                priority
+                alt="RentNest"
+              />
+            </div>
+            <h1 className="text-2xl font-bold text-[var(--foreground)] mb-1">
+              Welcome back
+            </h1>
+            <p className="text-[var(--foreground-sec)]">
+              Please sign in to your account
+            </p>
+          </div>
 
-        <LoginForm />
-        <div className="w-full flex items-center justify-center">
-          <span className="w-full h-[1px] bg-[var(--border)]"></span>
-          <span>Or</span>
-          <span className="w-full h-[1px] bg-[var(--border)]"></span>
-        </div>
-        <SocialButton />
+          <SocialButton />
+          
+          {/* Divider */}
+          <div className="flex items-center my-6">
+            <div className="flex-1 h-px bg-[var(--border)]"></div>
+            <span className="px-3 text-sm text-[var(--foreground-sec)]">or</span>
+            <div className="flex-1 h-px bg-[var(--border)]"></div>
+          </div>
+          
+          <LoginForm />
 
-        <div className="flex flex-row gap-x-2 justify-center">
-          <p>Don&apos;t have an account?</p>
-          <Link
-            className="underline font-semibold text-[var(--primary)]"
-            href={"/signup"}
-          >
-            Sign Up
-          </Link>
+          {/* Sign up link */}
+          <div className="text-center mt-6 pt-6 border-t border-[var(--border)]">
+            <span className="text-[var(--foreground-sec)]">Don't have an account? </span>
+            <Link
+              className="text-[var(--primary)] font-semibold hover:text-[var(--primary-dark)] transition-colors"
+              href={"/signup"}
+            >
+              Sign up
+            </Link>
+          </div>
         </div>
       </div>
     </main>

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaMapMarkerAlt, FaHome, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaMapMarkerAlt, FaHome, FaChevronLeft, FaChevronRight, FaStar } from "react-icons/fa";
 
 const FeaturedListings = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -20,6 +20,8 @@ const FeaturedListings = () => {
       location: "Lazimpat, Kathmandu",
       price: "Rs 15,000",
       roomType: "Private",
+      rating: 4.8,
+      reviewCount: 24,
     },
     {
       id: 2,
@@ -28,6 +30,8 @@ const FeaturedListings = () => {
       location: "Patan, Lalitpur",
       price: "Rs 8,500",
       roomType: "Shared",
+      rating: 4.6,
+      reviewCount: 18,
     },
     {
       id: 3,
@@ -36,6 +40,8 @@ const FeaturedListings = () => {
       location: "Thamel, Kathmandu", 
       price: "Rs 18,000",
       roomType: "Private",
+      rating: 4.9,
+      reviewCount: 32,
     },
     {
       id: 4,
@@ -44,6 +50,8 @@ const FeaturedListings = () => {
       location: "Baneshwor, Kathmandu",
       price: "Rs 10,000",
       roomType: "Shared",
+      rating: 4.7,
+      reviewCount: 15,
     },
     {
       id: 5,
@@ -52,6 +60,8 @@ const FeaturedListings = () => {
       location: "Pulchowk, Lalitpur",
       price: "Rs 12,000",
       roomType: "Private",
+      rating: 4.5,
+      reviewCount: 21,
     },
     {
       id: 6,
@@ -60,6 +70,8 @@ const FeaturedListings = () => {
       location: "Koteshwor, Kathmandu", 
       price: "Rs 7,500",
       roomType: "Shared",
+      rating: 4.4,
+      reviewCount: 12,
     },
     {
       id: 7,
@@ -68,6 +80,8 @@ const FeaturedListings = () => {
       location: "Bakhundole, Lalitpur",
       price: "Rs 25,000",
       roomType: "Private",
+      rating: 5.0,
+      reviewCount: 41,
     },
   ];
 
@@ -186,14 +200,17 @@ const FeaturedListings = () => {
     <section className="w-full py-12 lg:py-16 bg-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        {/* <div className="text-center mb-10">
-          <h2 className="text-2xl font-extrabold text-[var(--foreground)] mb-4">
-            Featured Listings
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-extrabold text-[var(--foreground)]">
+            RentNest Featured Listings
           </h2>
-          <p className="text-lg text-[var(--foreground-sec)] max-w-2xl mx-auto">
-            Discover handpicked rooms from verified landlords with excellent ratings
-          </p>
-        </div> */}
+          <Link 
+            href="/rooms"
+            className="text-[var(--primary)] hover:text-[var(--primary-dark)] font-semibold text-lg transition-colors duration-200"
+          >
+            View All →
+          </Link>
+        </div>
 
         {/* Slider Container */}
         <div className="relative">
@@ -271,9 +288,18 @@ const FeaturedListings = () => {
                               </h3>
 
                               {/* Location */}
-                              <div className="flex items-center text-[var(--foreground-sec)] mb-4">
+                              <div className="flex items-center text-[var(--foreground-sec)] mb-3">
                                 <FaMapMarkerAlt className="mr-2 text-[var(--primary)]" size={14} />
                                 <span className="text-sm font-medium">{room.location}</span>
+                              </div>
+
+                              {/* Rating */}
+                              <div className="flex items-center mb-4">
+                                <div className="flex items-center">
+                                  <FaStar className="text-yellow-400 mr-1" size={14} />
+                                  <span className="text-sm font-semibold text-[var(--foreground)]">{room.rating}</span>
+                                  <span className="text-sm text-[var(--foreground-sec)] ml-1">({room.reviewCount} reviews)</span>
+                                </div>
                               </div>
 
                               {/* View Details Button */}
@@ -328,9 +354,18 @@ const FeaturedListings = () => {
                               </h3>
 
                               {/* Location */}
-                              <div className="flex items-center text-[var(--foreground-sec)] mb-4">
+                              <div className="flex items-center text-[var(--foreground-sec)] mb-3">
                                 <FaMapMarkerAlt className="mr-2 text-[var(--primary)]" size={14} />
                                 <span className="text-sm font-medium">{room.location}</span>
+                              </div>
+
+                              {/* Rating */}
+                              <div className="flex items-center mb-4">
+                                <div className="flex items-center">
+                                  <FaStar className="text-yellow-400 mr-1" size={14} />
+                                  <span className="text-sm font-semibold text-[var(--foreground)]">{room.rating}</span>
+                                  <span className="text-sm text-[var(--foreground-sec)] ml-1">({room.reviewCount} reviews)</span>
+                                </div>
                               </div>
 
                               {/* View Details Button */}
@@ -385,9 +420,18 @@ const FeaturedListings = () => {
                               </h3>
 
                               {/* Location */}
-                              <div className="flex items-center text-[var(--foreground-sec)] mb-4">
+                              <div className="flex items-center text-[var(--foreground-sec)] mb-3">
                                 <FaMapMarkerAlt className="mr-2 text-[var(--primary)]" size={14} />
                                 <span className="text-sm font-medium">{room.location}</span>
+                              </div>
+
+                              {/* Rating */}
+                              <div className="flex items-center mb-4">
+                                <div className="flex items-center">
+                                  <FaStar className="text-yellow-400 mr-1" size={14} />
+                                  <span className="text-sm font-semibold text-[var(--foreground)]">{room.rating}</span>
+                                  <span className="text-sm text-[var(--foreground-sec)] ml-1">({room.reviewCount} reviews)</span>
+                                </div>
                               </div>
 
                               {/* View Details Button */}

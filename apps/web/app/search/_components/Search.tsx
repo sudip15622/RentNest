@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 
 interface SearchFormType {
+  searchText: string;
   city: string;
   minPrice: string;
   maxPrice: string;
@@ -27,6 +28,7 @@ const Search = () => {
     formState: { isSubmitting },
   } = useForm<SearchFormType>({
     defaultValues: {
+      searchText: "",
       city: "",
       minPrice: "",
       maxPrice: "",
@@ -36,16 +38,16 @@ const Search = () => {
   });
 
   const cities = [
-    "New York, NY",
-    "Los Angeles, CA",
-    "Chicago, IL",
-    "Houston, TX",
-    "Phoenix, AZ",
-    "Philadelphia, PA",
-    "San Antonio, TX",
-    "San Diego, CA",
-    "Dallas, TX",
-    "San Jose, CA",
+    "Kathmandu",
+    "Pokhara",
+    "Lalitpur",
+    "Bhaktapur",
+    "Chitwan",
+    "Butwal",
+    "Biratnagar",
+    "Dharan",
+    "Itahari",
+    "Nepalgunj",
   ];
 
   const roomTypes = [
@@ -62,25 +64,45 @@ const Search = () => {
   };
 
   return (
-    <main>
-      <section className="w-full">
+    <main className="page-content">
+      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--foreground)] text-center mb-5">
           Find Your Perfect Room
         </h2>
-        <p className="text-center text-lg text-[var(--foreground-sec)] mb-10">
+        <p className="text-center text-lg text-[var(--foreground-sec)] mb-10 max-w-2xl mx-auto">
           Search through thousands of verified listings to discover your ideal
           living space
         </p>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="p-8 rounded-xl shadow-xl border-1 border-[var(--border)]"
+          className="p-8 rounded-xl shadow-xl border-1 border-[var(--border)] bg-white/50 backdrop-blur-sm"
         >
           {/* Search Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 mb-8">
+            {/* Search Text */}
+            <div className="relative">
+              <label className="flex items-center text-sm font-medium text-[var(--foreground-sec)] mb-2">
+                <FaSearch className="mr-2 text-[var(--primary)]" />
+                Search
+              </label>
+              <Controller
+                name="searchText"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <InputWithoutLabel
+                    field={field}
+                    error={fieldState.error}
+                    placeholder="Room title, keywords..."
+                    type="text"
+                  />
+                )}
+              />
+            </div>
+
             {/* City/Area Dropdown */}
             <div className="relative">
               <label className="flex items-center text-sm font-medium text-[var(--foreground-sec)] mb-2">
-                <FaMapMarkerAlt className="mr-2" />
+                <FaMapMarkerAlt className="mr-2 text-[var(--primary)]" />
                 Location
               </label>
               <Controller
@@ -98,10 +120,10 @@ const Search = () => {
             </div>
 
             {/* Price Range */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="flex items-center text-sm font-medium text-[var(--foreground-sec)] mb-2">
-                  <FaDollarSign className="mr-2" />
+                  <FaDollarSign className="mr-2 text-[var(--primary)]" />
                   Min Price
                 </label>
                 <Controller
@@ -119,7 +141,7 @@ const Search = () => {
               </div>
               <div>
                 <label className="flex items-center text-sm font-medium text-[var(--foreground-sec)] mb-2">
-                  <FaPlus className="mr-2" />
+                  <FaPlus className="mr-2 text-[var(--primary)]" />
                   Max Price
                 </label>
                 <Controller
@@ -140,7 +162,7 @@ const Search = () => {
             {/* Room Type Dropdown */}
             <div>
               <label className="flex items-center text-sm font-medium text-[var(--foreground-sec)] mb-2">
-                <FaHome className="mr-2" />
+                <FaHome className="mr-2 text-[var(--primary)]" />
                 Room Type
               </label>
               <Controller
@@ -168,7 +190,7 @@ const Search = () => {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6 border-t-1 border-[var(--border)]">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 pt-8 border-t-1 border-[var(--border)]">
             <div className="text-center">
               <div className="text-2xl font-bold text-[var(--primary)]">
                 1,200+
