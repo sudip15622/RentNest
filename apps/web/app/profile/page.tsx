@@ -5,7 +5,7 @@ import ToastExample from './_components/ToastExample';
 const page = async() => {
   const res = await getProfile();
   return (
-    <main>
+    <main className='page-content'>
       {JSON.stringify(res)}
       <div>
         <ToastExample />

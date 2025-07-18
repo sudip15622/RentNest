@@ -80,15 +80,15 @@ const HeroSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link
                 href="/search"
-                className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:from-[var(--primary-dark)] hover:to-[var(--primary)] text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:from-[var(--primary-dark)] hover:to-[var(--primary)] text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <FaSearch className="w-4 h-4" />
                 Start Searching
                 <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="/rooms"
-                className="group inline-flex items-center justify-center gap-2 bg-white/90 backdrop-blur-sm border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                href="/list-room"
+                className="group inline-flex items-center justify-center gap-2 bg-white/90 backdrop-blur-sm border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <FaPlus className="w-4 h-4" />
                 List Your Room

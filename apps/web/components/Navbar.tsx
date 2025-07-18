@@ -15,6 +15,8 @@ const Navbar = ({ user }: { user: any }) => {
   const showDashRef = useRef<HTMLDivElement>(null);
   
   const isHomePage = pathname === '/';
+  const isListRoomPage = pathname === '/list-room';
+  const isHeroPage = isHomePage || isListRoomPage;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,19 +25,19 @@ const Navbar = ({ user }: { user: any }) => {
       setIsScrolled(scrollPosition > heroHeight);
     };
 
-    if (isHomePage) {
+    if (isHeroPage) {
       window.addEventListener('scroll', handleScroll);
       handleScroll(); // Check initial position
     } else {
-      setIsScrolled(true); // Always use white background on non-homepage
+      setIsScrolled(true); // Always use white background on non-hero pages
     }
 
     return () => {
-      if (isHomePage) {
+      if (isHeroPage) {
         window.removeEventListener('scroll', handleScroll);
       }
     };
-  }, [isHomePage]);
+  }, [isHeroPage]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -87,7 +89,7 @@ const Navbar = ({ user }: { user: any }) => {
             Search Rooms
           </Link>
           <Link
-            href={"/"}
+            href={"/list-room"}
             className={`transition-all duration-300 ease-out font-medium text-lg ${
               isScrolled 
                 ? 'text-[var(--foreground)] hover:text-[var(--primary)]'

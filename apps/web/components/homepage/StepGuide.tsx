@@ -40,12 +40,12 @@ const StepGuide = () => {
         {/* Steps Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           {steps.map((step, index) => (
-            <div key={step.id} className="relative">
+            <div key={step.id} className="relative group">
               {/* Step Card */}
-              <div className="text-center">
+              <div className="text-center transition-all duration-300 hover:transform">
                 {/* Step Number */}
                 <div className="relative mb-6">
-                  <div className="w-16 h-16 mx-auto bg-[var(--primary-light)] rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto bg-[var(--primary-light)] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     {step.icon}
                   </div>
                   <div className="absolute -top-2 -right-2 w-8 h-8 bg-[var(--primary)] text-white rounded-full flex items-center justify-center text-sm font-bold">
