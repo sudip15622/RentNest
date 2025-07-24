@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { deleteSession, getSession } from "../../../../lib/session";
 import { revalidatePath } from "next/cache";
-import { refreshToken } from "../../../../lib/auth";
 import { BACKEND_URL } from "../../../../lib/constants";
 
 export async function GET(req: NextRequest) {
@@ -18,23 +17,7 @@ export async function GET(req: NextRequest) {
                 },
             });
 
-            // If token is expired, try to refresh and signout again
-            if (response.status === 401 && session.refreshToken) {
-                console.log("Access token expired during signout, attempting refresh");
-                
-                const tokenResult = await refreshToken(session.refreshToken);
-                
-                if (tokenResult) {
-                    // Try signout again with fresh token
-                    await fetch(`${BACKEND_URL}/auth/signout`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${tokenResult.accessToken}`,
-                        },
-                    });
-                }
-            }
+            if(!response.ok) throw new Error ("Backend signout failed!");
         }
     } catch (error) {
         // Even if backend signout fails completely, we still clear local session

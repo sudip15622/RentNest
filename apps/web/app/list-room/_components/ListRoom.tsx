@@ -1,10 +1,9 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   FaHome,
-  FaMapMarkerAlt,
   FaCamera,
   FaShieldAlt,
   FaCheckCircle,
@@ -19,7 +18,22 @@ import {
   FaChartLine,
 } from "react-icons/fa";
 
-const ListRoom = () => {
+const ListRoom = ({session}: {session: any}) => {
+  // Get smart button text and href based on user state
+  const getButtonConfig = () => {
+    if (!session) {
+      return {
+        text: "Sign In to List Room",
+        href: "/login?redirectTo=/list-room/create"
+      };
+    }
+    return {
+      text: "List Another Room",
+      href: "/list-room/create" // Will be handled by onClick
+    };
+  };
+
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-[var(--background)] via-[var(--primary-light)] to-[var(--background)]">
       {/* Hero Section */}
@@ -92,11 +106,11 @@ const ListRoom = () => {
             {/* CTA Button */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
-                href="/list-room/create"
+                href={getButtonConfig().href}
                 className="group inline-flex items-center justify-center gap-3 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:from-[var(--primary-dark)] hover:to-[var(--primary)] text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-xl hover:shadow-2xl"
               >
                 <FaPlus className="w-5 h-5" />
-                List Your Room Now
+                {getButtonConfig().text}
                 <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               
@@ -357,11 +371,11 @@ const ListRoom = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
-                href="/list-room/create"
+                href={getButtonConfig().href}
                 className="group inline-flex items-center justify-center gap-3 bg-white text-[var(--primary)] px-8 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-xl hover:shadow-2xl"
               >
                 <FaPlus className="w-5 h-5" />
-                Start Your Journey Today
+                {getButtonConfig().text}
                 <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               

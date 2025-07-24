@@ -9,19 +9,120 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  password     String?
-  refreshToken String?
-  image        String   @default("/default_user.png")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  role         Role     @default(renter)
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  password          String
+  accessToken       String?
+  phoneNumber       String   @unique
+  citizenshipNumber String
+  propertyAddress   String
+  isVerified        Boolean  @default(false)
+  image             String   @default("/default_user.png")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  listings Listing[]
 }
 
-enum Role {
-  renter
-  owner
-  admin
+model Listing {
+  id String @id @default(uuid())
+
+  // Basic Information (Step 1)
+  title          String
+  description    String
+  location       String
+  roomType       RoomType
+  bedrooms       Int
+  bathrooms      Int
+  floorArea      String? // in square feet
+  amenities      String[] // Array of amenity IDs/names
+  extraAmenities String? // Additional amenities text
+
+  // Photos (Step 2)
+  photos         String[] // Array of photo URLs
+  mainPhotoIndex Int      @default(0) // Index of main photo in photos array
+
+  // Pricing & Availability (Step 3)
+  monthlyRent       Float
+  securityDeposit   Float
+  availableFrom     DateTime
+  leaseDuration     LeaseDuration
+  utilitiesIncluded Boolean       @default(false)
+  internetIncluded  Boolean       @default(false)
+  specialTerms      String?
+
+  // Listing Status & Metadata
+  status    ListingStatus @default(draft)
+  isActive  Boolean       @default(true)
+  viewCount Int           @default(0)
+  featured  Boolean       @default(false)
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+
+  // Relationships
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String
+  inquiries Inquiry[]
+
+  // Indexes for better query performance
+  @@index([status])
+  @@index([roomType])
+  @@index([monthlyRent])
+  @@index([availableFrom])
+  @@index([createdAt])
+  @@map("listings")
+}
+
+enum RoomType {
+  single
+  double
+  master
+  studio
+  shared
+}
+
+enum LeaseDuration {
+  monthly
+  quarterly // 3 months
+  biannually // 6 months
+  yearly
+  flexible
+}
+
+enum ListingStatus {
+  draft
+  active
+  rented
+  inactive
+  expired
+}
+
+// Additional models for related functionality
+
+model Inquiry {
+  id          String        @id @default(uuid())
+  message     String
+  phoneNumber String
+  email       String
+  name        String
+  status      InquiryStatus @default(pending)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relationships
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId String
+
+  @@map("inquiries")
+}
+
+enum InquiryStatus {
+  pending
+  responded
+  closed
 }

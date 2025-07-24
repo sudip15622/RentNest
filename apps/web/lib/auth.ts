@@ -9,24 +9,18 @@ import {
   LoginFormSchema,
   LoginFormType,
 } from "./types";
-import { treeifyError } from "zod";
 import { createSession } from "./session";
+import { formatZodErrors } from "./utils";
 
 export async function handleSignup(
   details: SignupFormType,
-  redirectTo?: string,
 ): Promise<CustomFormState> {
-  const validRedirect = redirectTo ? redirectTo : "/login";
   const validationFields = SignupFormSchema.safeParse(details);
 
   if (!validationFields.success) {
-    const treefied = treeifyError(validationFields.error);
     return {
-      errors: {
-        name: treefied.properties?.name?.errors,
-        email: treefied.properties?.email?.errors,
-        password: treefied.properties?.password?.errors,
-      },
+      success: false,
+      errors: formatZodErrors(validationFields.error)
     };
   }
 
@@ -39,9 +33,12 @@ export async function handleSignup(
   });
 
   if (response.ok) {
-    redirect(validRedirect);
+    return {
+      success: true
+    }
   } else {
     return {
+      success: false,
       message:
         response.status === 409 ? "User already exists!" : response.statusText || "Something went wrong!",
     };
@@ -50,18 +47,13 @@ export async function handleSignup(
 
 export async function handleLogin(
   details: LoginFormType,
-  redirectTo?: string,
 ): Promise<CustomFormState> {
-  const validRedirect = redirectTo ? redirectTo : "/";
   const validationFields = LoginFormSchema.safeParse(details);
 
   if (!validationFields.success) {
-    const treefied = treeifyError(validationFields.error);
     return {
-      errors: {
-        email: treefied.properties?.email?.errors,
-        password: treefied.properties?.password?.errors,
-      },
+      success: false,
+      errors: formatZodErrors(validationFields.error)
     };
   }
 
@@ -80,40 +72,18 @@ export async function handleLogin(
       user: {
         id: result.id,
         image: result.image,
-        role: result.role,
       },
       accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
     });
 
-    redirect(validRedirect);
+    return {
+      success: true
+    }
   } else {
     return {
+      success: false,
       message:
         response.status === 401 ? "Invalid Credentails!" : response.statusText || "Something went wrong!",
     };
   }
 }
-
-export const refreshToken = async (oldRefreshToken: string) => {
-  try {
-    const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        refresh: oldRefreshToken,
-      }),
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const { accessToken, refreshToken } = await response.json();
-    return { accessToken, refreshToken };
-  } catch (error) {
-    return null;
-  }
-};

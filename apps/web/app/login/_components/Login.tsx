@@ -4,7 +4,6 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import LoginForm from "./LoginForm";
-import SocialButton from "../../signup/_components/SocialButton";
 
 const Login = () => {
   const searchParams = useSearchParams();
@@ -24,11 +23,11 @@ const Login = () => {
 
   return (
     <main className="page-content min-h-screen bg-[var(--background)] flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md">
         {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-[var(--border)] p-8">
+        <div className="bg-white rounded-lg shadow-lg border border-[var(--border)] p-8">
           {/* Logo and Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--background)] rounded-2xl shadow-sm mb-4 border border-[var(--border)]">
               <Image
                 className="w-8 h-8 object-cover"
@@ -39,34 +38,27 @@ const Login = () => {
                 alt="RentNest"
               />
             </div>
-            <h1 className="text-2xl font-bold text-[var(--foreground)] mb-1">
-              Welcome back
+            <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2">
+              Landlord Login
             </h1>
             <p className="text-[var(--foreground-sec)]">
-              Please sign in to your account
+              Access your property management dashboard
             </p>
-          </div>
-
-          <SocialButton />
-          
-          {/* Divider */}
-          <div className="flex items-center my-6">
-            <div className="flex-1 h-px bg-[var(--border)]"></div>
-            <span className="px-3 text-sm text-[var(--foreground-sec)]">or</span>
-            <div className="flex-1 h-px bg-[var(--border)]"></div>
           </div>
           
           <LoginForm />
 
           {/* Sign up link */}
           <div className="text-center mt-6 pt-6 border-t border-[var(--border)]">
-            <span className="text-[var(--foreground-sec)]">Don't have an account? </span>
-            <Link
-              className="text-[var(--primary)] font-semibold hover:text-[var(--primary-dark)] transition-colors"
-              href={"/signup"}
-            >
-              Sign up
-            </Link>
+            <p className="text-[var(--foreground-sec)] text-sm">
+              Don't have an account?{" "}
+              <Link
+                className="text-[var(--primary)] font-bold hover:text-[var(--primary-dark)] transition-colors"
+                href={"/signup"}
+              >
+                Become a Landlord
+              </Link>
+            </p>
           </div>
         </div>
       </div>

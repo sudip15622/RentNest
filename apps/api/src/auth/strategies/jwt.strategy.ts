@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import jwtConfig from '../configs/jwt.config';
@@ -17,11 +17,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: jwtConfiguration.secret!,
       ignoreExpiration: false,
+      passReqToCallback: true,
     });
   }
 
-  validate (payload: AuthJwtPayload) {
+  validate (req: any, payload: AuthJwtPayload) {
     const userId = payload.sub;
-    return this.authService.validateJwtUser(userId);
+    const providedToken = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+    if(!providedToken) throw new UnauthorizedException('Please provide token!');
+    return this.authService.validateJwtUser(userId, providedToken);
   }
 }

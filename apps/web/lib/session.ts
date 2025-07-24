@@ -2,16 +2,13 @@
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Role } from "./types";
 
 export type Session = {
   user: {
     id: string;
     image: string;
-    role: Role;
   };
   accessToken: string;
-  refreshToken: string;
 };
 
 const secretKey = process.env.SESSION_SECRET_KEY!;
@@ -55,29 +52,3 @@ export async function getSession() {
 export async function deleteSession () {
     (await cookies()).delete("session");
 }
-
-// export async function updateTokens({accessToken, refreshToken}: {accessToken: string, refreshToken: string}) {
-//   const cookie = (await cookies()).get("session")?.value;
-
-//   if(!cookie) throw new Error("No session found!");
-
-//   try {
-//     const {payload} = await jwtVerify<Session>(cookie, encodedKey, {
-//       algorithms: ["HS256"],
-//     });
-
-//     if(!payload) throw new Error("Session not found!");
-
-//     const newPayload: Session = {
-//       user: {
-//         ...payload.user
-//       },
-//       accessToken,
-//       refreshToken,
-//     }
-
-//     await createSession(newPayload);
-//   } catch (error) {
-//     throw new Error("Failed to update session");
-//   }
-// }

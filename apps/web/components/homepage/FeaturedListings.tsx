@@ -213,20 +213,28 @@ const FeaturedListings = () => {
         </div>
 
         {/* Slider Container */}
-        <div className="relative">
+        <div className="relative group">
           {/* Navigation Buttons */}
           <button
             onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300 -ml-6"
             disabled={currentSlide === 0}
+            className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300 -ml-6 ${
+              currentSlide === 0 
+                ? 'opacity-0 cursor-not-allowed group-hover:opacity-30' 
+                : 'opacity-0 group-hover:opacity-100'
+            }`}
           >
             <FaChevronLeft size={16} />
           </button>
 
           <button
             onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300 -mr-6"
             disabled={currentSlide === totalSlides - 1}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300 -mr-6 ${
+              currentSlide === totalSlides - 1 
+                ? 'opacity-0 cursor-not-allowed group-hover:opacity-30' 
+                : 'opacity-0 group-hover:opacity-100'
+            }`}
           >
             <FaChevronRight size={16} />
           </button>
@@ -259,9 +267,9 @@ const FeaturedListings = () => {
                       .map((room) => (
                         <div
                           key={room.id}
-                          className="group"
+                          className="group h-full"
                         >
-                          <div className="bg-[var(--background)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[var(--border)] h-full flex flex-col">
+                          <div className="bg-[var(--background)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[var(--border)] h-full flex flex-col min-h-[400px]">
                             {/* Room Image */}
                             <div className="relative h-48 overflow-hidden">
                               <Image
@@ -325,9 +333,9 @@ const FeaturedListings = () => {
                       .map((room) => (
                         <div
                           key={room.id}
-                          className="group"
+                          className="group h-full"
                         >
-                          <div className="bg-[var(--background)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[var(--border)] h-full flex flex-col">
+                          <div className="bg-[var(--background)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[var(--border)] h-full flex flex-col min-h-[400px]">
                             {/* Room Image */}
                             <div className="relative h-48 overflow-hidden">
                               <Image
@@ -391,9 +399,9 @@ const FeaturedListings = () => {
                       .map((room) => (
                         <div
                           key={room.id}
-                          className="group"
+                          className="group h-full"
                         >
-                          <div className="bg-[var(--background)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[var(--border)] h-full flex flex-col">
+                          <div className="bg-[var(--background)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[var(--border)] h-full flex flex-col min-h-[400px]">
                             {/* Room Image */}
                             <div className="relative h-48 overflow-hidden">
                               <Image

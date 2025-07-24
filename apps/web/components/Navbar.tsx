@@ -69,10 +69,11 @@ const Navbar = ({ user }: { user: any }) => {
     }`}>
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-row items-center justify-between">
         <Link href={"/"} className="flex flex-row items-center gap-x-2">
-          <span className={`text-2xl font-bold transition-all duration-300 ease-out ${
+        <Image className="object-cover w-8 h-8" src={"/rentnest.png"} width={50} height={50} alt="logo" priority/>
+          <span className={`text-[var(--primary-dark)] text-xl font-extrabold transition-all duration-300 ease-out ${
             isScrolled 
-              ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] bg-clip-text text-transparent'
-              : 'text-[var(--primary-dark)] drop-shadow-sm'
+              ? ''
+              : 'drop-shadow-sm'
           }`}>
             RentNest
           </span>
@@ -80,21 +81,13 @@ const Navbar = ({ user }: { user: any }) => {
         <div className="hidden md:flex items-center gap-x-8">
           <Link
             href={"/search"}
-            className={`transition-all duration-300 ease-out font-medium text-lg ${
-              isScrolled 
-                ? 'text-[var(--foreground)] hover:text-[var(--primary)]'
-                : 'text-[var(--foreground)] hover:text-[var(--primary-dark)]'
-            }`}
+            className={`transition-all duration-300 ease-out font-medium text-lg text-[var(--foreground)] hover:text-[var(--primary-dark)]`}
           >
             Search Rooms
           </Link>
           <Link
             href={"/list-room"}
-            className={`transition-all duration-300 ease-out font-medium text-lg ${
-              isScrolled 
-                ? 'text-[var(--foreground)] hover:text-[var(--primary)]'
-                : 'text-[var(--foreground)] hover:text-[var(--primary-dark)]'
-            }`}
+            className={`transition-all duration-300 ease-out font-medium text-lg text-[var(--foreground)] hover:text-[var(--primary-dark)]`}
           >
             List a Room
           </Link>
@@ -105,11 +98,7 @@ const Navbar = ({ user }: { user: any }) => {
             >
               <Image
                 onClick={() => setShowDash(!showDash)}
-                className={`cursor-pointer rounded-full object-cover h-8 w-8 ring-2 transition-all duration-300 ease-out ${
-                  isScrolled 
-                    ? 'ring-[var(--primary)]/20 hover:ring-[var(--primary)]/40'
-                    : 'ring-[var(--primary)]/30 hover:ring-[var(--primary)]/50'
-                }`}
+                className={`cursor-pointer rounded-full object-cover h-8 w-8 ring-2 transition-all duration-300 ease-out ring-[var(--primary)]/30 hover:ring-[var(--primary)]/50`}
                 src={user.image}
                 width={50}
                 height={50}
