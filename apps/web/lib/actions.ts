@@ -1,10 +1,13 @@
 "use server";
 
 import { BACKEND_URL } from "./constants";
+import { Listing } from "./types";
 import {
   CustomFormState,
   CreateListingType,
   CreateListingSchema,
+  CreateInquiryType,
+  CreateInquirySchema,
 } from "./types";
 import { formatZodErrors } from "./utils";
 import { authFetch } from "./authFetch";
@@ -148,3 +151,64 @@ export const createListing = async (
     };
   }
 };
+
+
+export async function createInquiry(
+  details: CreateInquiryType,
+  listingId: string
+): Promise<CustomFormState> {
+  const validationFields = CreateInquirySchema.safeParse(details);
+
+  if (!validationFields.success) {
+    return {
+      success: false,
+      errors: formatZodErrors(validationFields.error)
+    };
+  }
+
+  const response = await fetch(`${BACKEND_URL}/inquiry/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ...validationFields.data,
+      listingId: listingId
+    }),
+  });
+
+  if (response.ok) {
+    const result = await response.json();
+
+    return {
+      success: true
+    }
+  } else {
+    return {
+      success: false,
+      message:
+        response.status === 404 ? "Listing not found!" : response.statusText || "Something went wrong!",
+    };
+  }
+}
+
+
+export async function getFeaturedListings(): Promise<Listing[]> {
+  try {
+    const response = await fetch(`${BACKEND_URL}/listing/featured?limit=6`, {
+      cache: 'no-store', // Always fetch fresh data
+    });
+    
+    if (!response.ok) {
+      console.error('Failed to fetch featured listings:', response.statusText);
+      return [];
+    }
+    const result = await response.json();
+    // console.log(result);
+    
+    return result;
+  } catch (error) {
+    console.error('Error fetching featured listings:', error);
+    return []; // Return empty array on error
+  }
+}

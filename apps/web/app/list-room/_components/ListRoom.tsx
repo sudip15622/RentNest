@@ -28,7 +28,7 @@ const ListRoom = ({session}: {session: any}) => {
       };
     }
     return {
-      text: "List Another Room",
+      text: "List new Room",
       href: "/list-room/create" // Will be handled by onClick
     };
   };

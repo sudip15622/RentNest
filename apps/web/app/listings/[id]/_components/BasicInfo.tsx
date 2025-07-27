@@ -71,7 +71,7 @@ export default function BasicInfo({ listing }: BasicInfoProps) {
       <hr className="border-[var(--border)]" />
 
       {/* Price and Room Type */}
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start flex-col sm:flex-row gap-y-3">
         <div>
           <div className="text-2xl font-extrabold text-[var(--primary)] mb-1">
             {formatPrice(listing.monthlyRent)}

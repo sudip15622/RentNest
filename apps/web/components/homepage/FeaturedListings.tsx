@@ -1,97 +1,42 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaMapMarkerAlt, FaHome, FaChevronLeft, FaChevronRight, FaStar } from "react-icons/fa";
+import {
+  FaMapMarkerAlt,
+  FaHome,
+  FaChevronLeft,
+  FaChevronRight,
+  FaStar,
+} from "react-icons/fa";
+import { Listing } from "../../lib/types";
+import { FeaturedListingsSkeletonGrid } from "../ui/Skeleton";
 
-const FeaturedListings = () => {
+const FeaturedListings = ({
+  featuredListings,
+}: {
+  featuredListings: Listing[];
+}) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Demo data for featured listings
-  const featuredRooms = [
-    {
-      id: 1,
-      title: "Private Room in Lazimpat - Near Public Transport",
-      image: "/demo.jfif",
-      location: "Lazimpat, Kathmandu",
-      price: "Rs 15,000",
-      roomType: "Private",
-      rating: 4.8,
-      reviewCount: 24,
-    },
-    {
-      id: 2,
-      title: "Shared Room in Patan - Budget Friendly",
-      image: "/demo1.jfif", 
-      location: "Patan, Lalitpur",
-      price: "Rs 8,500",
-      roomType: "Shared",
-      rating: 4.6,
-      reviewCount: 18,
-    },
-    {
-      id: 3,
-      title: "Cozy Private Room in Thamel - Tourist Area",
-      image: "/demo2.jfif",
-      location: "Thamel, Kathmandu", 
-      price: "Rs 18,000",
-      roomType: "Private",
-      rating: 4.9,
-      reviewCount: 32,
-    },
-    {
-      id: 4,
-      title: "Spacious Shared Room in Baneshwor - Safe Neighborhood",
-      image: "/demo3.jfif",
-      location: "Baneshwor, Kathmandu",
-      price: "Rs 10,000",
-      roomType: "Shared",
-      rating: 4.7,
-      reviewCount: 15,
-    },
-    {
-      id: 5,
-      title: "Modern Private Room in Pulchowk - Student Area",
-      image: "/demo4.jfif",
-      location: "Pulchowk, Lalitpur",
-      price: "Rs 12,000",
-      roomType: "Private",
-      rating: 4.5,
-      reviewCount: 21,
-    },
-    {
-      id: 6,
-      title: "Affordable Shared Room in Koteshwor - Well Connected",
-      image: "/demo.jfif",
-      location: "Koteshwor, Kathmandu", 
-      price: "Rs 7,500",
-      roomType: "Shared",
-      rating: 4.4,
-      reviewCount: 12,
-    },
-    {
-      id: 7,
-      title: "Luxury Private Room in Bakhundole - Premium Location",
-      image: "/demo1.jfif",
-      location: "Bakhundole, Lalitpur",
-      price: "Rs 25,000",
-      roomType: "Private",
-      rating: 5.0,
-      reviewCount: 41,
-    },
-  ];
+  useEffect(() => {
+    if (featuredListings && featuredListings.length > 0) {
+      setLoading(false);
+    }
+  }, [featuredListings]);
 
   const itemsPerSlide = 3; // Desktop: 3 cards per slide
-  const itemsPerSlideTablet = 2; // Tablet: 2 cards per slide  
+  const itemsPerSlideTablet = 2; // Tablet: 2 cards per slide
   const itemsPerSlideMobile = 1; // Mobile: 1 card per slide
-  
+
   // For now, we'll use desktop calculation for total slides
   // In a real app, you'd want to handle this with useEffect and window resize
-  const totalSlides = Math.ceil(featuredRooms.length / itemsPerSlide);
+  const totalSlides = Math.ceil(featuredListings.length / itemsPerSlide);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
@@ -117,7 +62,7 @@ const FeaturedListings = () => {
   const handleEnd = () => {
     if (!isDragging) return;
     setIsDragging(false);
-    
+
     const threshold = 50; // Minimum drag distance to trigger slide
     if (Math.abs(translateX) > threshold) {
       if (translateX > 0 && currentSlide > 0) {
@@ -169,32 +114,79 @@ const FeaturedListings = () => {
   // Wheel/Trackpad scroll handler
   const handleWheel = (e: React.WheelEvent) => {
     // Prevent default scrolling behavior
-    e.preventDefault();
-    
+    // e.preventDefault();
+
     // Ignore if already scrolling to prevent rapid firing
     if (isScrolling) return;
-    
+
     const { deltaX, deltaY } = e;
-    
+
     // Detect horizontal scroll (trackpad swipe) or vertical scroll with shift
-    const isHorizontalScroll = Math.abs(deltaX) > Math.abs(deltaY) || e.shiftKey;
-    
+    const isHorizontalScroll =
+      Math.abs(deltaX) > Math.abs(deltaY) || e.shiftKey;
+
     if (isHorizontalScroll) {
       setIsScrolling(true);
-      
+
       // Determine scroll direction
       const scrollDirection = deltaX > 0 || (e.shiftKey && deltaY > 0) ? 1 : -1;
-      
+
       if (scrollDirection > 0 && currentSlide < totalSlides - 1) {
         nextSlide();
       } else if (scrollDirection < 0 && currentSlide > 0) {
         prevSlide();
       }
-      
+
       // Reset scrolling flag after a delay
       setTimeout(() => setIsScrolling(false), 500);
     }
   };
+
+  const generateRatingFromViews = (viewCount: number, listingId: string): number => {
+    // Return 0 rating if no views
+    if (viewCount === 0) {
+      return 0;
+    }
+
+    // Create a deterministic "random" value based on listing ID
+    // This ensures the same listing always gets the same rating
+    const seed = listingId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const deterministicValue = (seed % 100) / 100; // 0-0.99
+
+    // Base rating starts at different levels based on view count tiers
+    let baseRating: number;
+    let variance: number;
+
+    if (viewCount >= 1000) {
+      baseRating = 4.8;
+      variance = 0.2; // 4.8-5.0 for very popular listings
+    } else if (viewCount >= 500) {
+      baseRating = 4.5;
+      variance = 0.3; // 4.5-4.8 for popular listings
+    } else if (viewCount >= 200) {
+      baseRating = 4.2;
+      variance = 0.3; // 4.2-4.5 for moderately popular
+    } else if (viewCount >= 100) {
+      baseRating = 3.8;
+      variance = 0.4; // 3.8-4.2 for decent viewership
+    } else if (viewCount >= 50) {
+      baseRating = 3.5;
+      variance = 0.4; // 3.5-3.9 for moderate viewership
+    } else {
+      baseRating = 3.0;
+      variance = 0.5; // 3.0-3.5 for low viewership
+    }
+
+    const rating = baseRating + (deterministicValue * variance);
+
+    // Round to 1 decimal place and ensure it doesn't exceed 5.0
+    return Math.min(Math.round(rating * 10) / 10, 5.0);
+  };
+
+  // Show skeleton loading if no listings or still loading
+  if (!featuredListings || featuredListings.length === 0 || loading) {
+    return <FeaturedListingsSkeletonGrid count={3} />;
+  }
 
   return (
     <section className="w-full py-12 lg:py-16 bg-[var(--background)]">
@@ -202,9 +194,9 @@ const FeaturedListings = () => {
         {/* Section Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-extrabold text-[var(--foreground)]">
-            RentNest Featured Listings
+            Featured Listings
           </h2>
-          <Link 
+          <Link
             href="/rooms"
             className="text-[var(--primary)] hover:text-[var(--primary-dark)] font-semibold text-lg transition-colors duration-200"
           >
@@ -219,9 +211,9 @@ const FeaturedListings = () => {
             onClick={prevSlide}
             disabled={currentSlide === 0}
             className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300 -ml-6 ${
-              currentSlide === 0 
-                ? 'opacity-0 cursor-not-allowed group-hover:opacity-30' 
-                : 'opacity-0 group-hover:opacity-100'
+              currentSlide === 0
+                ? "opacity-0 cursor-not-allowed group-hover:opacity-30"
+                : "opacity-0 group-hover:opacity-100"
             }`}
           >
             <FaChevronLeft size={16} />
@@ -231,16 +223,16 @@ const FeaturedListings = () => {
             onClick={nextSlide}
             disabled={currentSlide === totalSlides - 1}
             className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-all duration-300 -mr-6 ${
-              currentSlide === totalSlides - 1 
-                ? 'opacity-0 cursor-not-allowed group-hover:opacity-30' 
-                : 'opacity-0 group-hover:opacity-100'
+              currentSlide === totalSlides - 1
+                ? "opacity-0 cursor-not-allowed group-hover:opacity-30"
+                : "opacity-0 group-hover:opacity-100"
             }`}
           >
             <FaChevronRight size={16} />
           </button>
 
           {/* Cards Container */}
-          <div 
+          <div
             className="overflow-hidden cursor-grab active:cursor-grabbing"
             onMouseDown={handleMouseDown}
             onMouseMove={isDragging ? handleMouseMove : undefined}
@@ -251,36 +243,39 @@ const FeaturedListings = () => {
             onTouchEnd={handleTouchEnd}
             onWheel={handleWheel}
           >
-            <div 
+            <div
               className="flex transition-transform duration-500 ease-in-out"
-              style={{ 
+              style={{
                 transform: `translateX(${-currentSlide * 100 + (isDragging ? translateX / 5 : 0)}%)`,
-                transitionDuration: isDragging ? '0ms' : '500ms'
+                transitionDuration: isDragging ? "0ms" : "500ms",
               }}
             >
               {Array.from({ length: totalSlides }, (_, slideIndex) => (
                 <div key={slideIndex} className="w-full flex-shrink-0">
                   {/* Desktop: 3 cards */}
                   <div className="hidden lg:grid lg:grid-cols-3 gap-6 px-2">
-                    {featuredRooms
-                      .slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide)
+                    {featuredListings
+                      .slice(
+                        slideIndex * itemsPerSlide,
+                        (slideIndex + 1) * itemsPerSlide
+                      )
                       .map((room) => (
-                        <div
-                          key={room.id}
-                          className="group h-full"
-                        >
+                        <div key={room.id} className="group h-full">
                           <div className="bg-[var(--background)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[var(--border)] h-full flex flex-col min-h-[400px]">
                             {/* Room Image */}
                             <div className="relative h-48 overflow-hidden">
                               <Image
-                                src={room.image}
+                                src={room.photos[0] || "/demo.jfif"}
                                 alt={room.title}
-                                fill
-                                className="object-cover group-hover:scale-110 transition-transform duration-300"
+                                width={400}
+                                height={350}
+                                priority
+                                // fill
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                               />
                               <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-lg shadow-md">
                                 <span className="text-sm font-semibold text-[var(--primary)]">
-                                  {room.price}/mo
+                                  {room.monthlyRent}/mo
                                 </span>
                               </div>
                               <div className="absolute top-3 left-3 bg-[var(--primary)] text-white px-2 py-1 rounded-lg text-xs font-medium">
@@ -297,23 +292,35 @@ const FeaturedListings = () => {
 
                               {/* Location */}
                               <div className="flex items-center text-[var(--foreground-sec)] mb-3">
-                                <FaMapMarkerAlt className="mr-2 text-[var(--primary)]" size={14} />
-                                <span className="text-sm font-medium">{room.location}</span>
+                                <FaMapMarkerAlt
+                                  className="mr-2 text-[var(--primary)]"
+                                  size={14}
+                                />
+                                <span className="text-sm font-medium">
+                                  {room.location}
+                                </span>
                               </div>
 
                               {/* Rating */}
                               <div className="flex items-center mb-4">
                                 <div className="flex items-center">
-                                  <FaStar className="text-yellow-400 mr-1" size={14} />
-                                  <span className="text-sm font-semibold text-[var(--foreground)]">{room.rating}</span>
-                                  <span className="text-sm text-[var(--foreground-sec)] ml-1">({room.reviewCount} reviews)</span>
+                                  <FaStar
+                                    className="text-yellow-400 mr-1"
+                                    size={14}
+                                  />
+                                  <span className="text-sm font-semibold text-[var(--foreground)]">
+                                    {generateRatingFromViews(room.viewCount, room.id)}
+                                  </span>
+                                  <span className="text-sm text-[var(--foreground-sec)] ml-1">
+                                    ({room.viewCount} views)
+                                  </span>
                                 </div>
                               </div>
 
                               {/* View Details Button */}
                               <div className="flex items-center justify-center mt-auto">
                                 <Link
-                                  href={`/rooms`}
+                                  href={`/listings/${room.id}`}
                                   className="w-full bg-[var(--primary)] text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-[var(--primary-dark)] transition-colors duration-300 flex items-center justify-center gap-2"
                                 >
                                   <FaHome size={12} />
@@ -325,28 +332,30 @@ const FeaturedListings = () => {
                         </div>
                       ))}
                   </div>
-                  
+
                   {/* Tablet: 2 cards */}
                   <div className="hidden md:grid lg:hidden md:grid-cols-2 gap-6 px-2">
-                    {featuredRooms
-                      .slice(slideIndex * itemsPerSlideTablet, (slideIndex + 1) * itemsPerSlideTablet)
+                    {featuredListings
+                      .slice(
+                        slideIndex * itemsPerSlideTablet,
+                        (slideIndex + 1) * itemsPerSlideTablet
+                      )
                       .map((room) => (
-                        <div
-                          key={room.id}
-                          className="group h-full"
-                        >
+                        <div key={room.id} className="group h-full">
                           <div className="bg-[var(--background)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[var(--border)] h-full flex flex-col min-h-[400px]">
                             {/* Room Image */}
                             <div className="relative h-48 overflow-hidden">
                               <Image
-                                src={room.image}
+                                src={room.photos[0] || "/demo.jfif"}
                                 alt={room.title}
-                                fill
-                                className="object-cover group-hover:scale-110 transition-transform duration-300"
+                                width={400}
+                                height={350}
+                                priority
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                               />
                               <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-lg shadow-md">
                                 <span className="text-sm font-semibold text-[var(--primary)]">
-                                  {room.price}/mo
+                                  {room.monthlyRent}/mo
                                 </span>
                               </div>
                               <div className="absolute top-3 left-3 bg-[var(--primary)] text-white px-2 py-1 rounded-lg text-xs font-medium">
@@ -363,16 +372,28 @@ const FeaturedListings = () => {
 
                               {/* Location */}
                               <div className="flex items-center text-[var(--foreground-sec)] mb-3">
-                                <FaMapMarkerAlt className="mr-2 text-[var(--primary)]" size={14} />
-                                <span className="text-sm font-medium">{room.location}</span>
+                                <FaMapMarkerAlt
+                                  className="mr-2 text-[var(--primary)]"
+                                  size={14}
+                                />
+                                <span className="text-sm font-medium">
+                                  {room.location}
+                                </span>
                               </div>
 
                               {/* Rating */}
                               <div className="flex items-center mb-4">
                                 <div className="flex items-center">
-                                  <FaStar className="text-yellow-400 mr-1" size={14} />
-                                  <span className="text-sm font-semibold text-[var(--foreground)]">{room.rating}</span>
-                                  <span className="text-sm text-[var(--foreground-sec)] ml-1">({room.reviewCount} reviews)</span>
+                                  <FaStar
+                                    className="text-yellow-400 mr-1"
+                                    size={14}
+                                  />
+                                  <span className="text-sm font-semibold text-[var(--foreground)]">
+                                    {generateRatingFromViews(room.viewCount, room.id)}
+                                  </span>
+                                  <span className="text-sm text-[var(--foreground-sec)] ml-1">
+                                    ({room.viewCount} views)
+                                  </span>
                                 </div>
                               </div>
 
@@ -391,28 +412,30 @@ const FeaturedListings = () => {
                         </div>
                       ))}
                   </div>
-                  
+
                   {/* Mobile: 1 card */}
                   <div className="grid md:hidden grid-cols-1 gap-6 px-2">
-                    {featuredRooms
-                      .slice(slideIndex * itemsPerSlideMobile, (slideIndex + 1) * itemsPerSlideMobile)
+                    {featuredListings
+                      .slice(
+                        slideIndex * itemsPerSlideMobile,
+                        (slideIndex + 1) * itemsPerSlideMobile
+                      )
                       .map((room) => (
-                        <div
-                          key={room.id}
-                          className="group h-full"
-                        >
+                        <div key={room.id} className="group h-full">
                           <div className="bg-[var(--background)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-[var(--border)] h-full flex flex-col min-h-[400px]">
                             {/* Room Image */}
                             <div className="relative h-48 overflow-hidden">
                               <Image
-                                src={room.image}
+                                src={room.photos[0] || "/demo.jfif"}
                                 alt={room.title}
-                                fill
-                                className="object-cover group-hover:scale-110 transition-transform duration-300"
+                                width={400}
+                                height={300}
+                                priority
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                               />
                               <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-lg shadow-md">
                                 <span className="text-sm font-semibold text-[var(--primary)]">
-                                  {room.price}/mo
+                                  {room.monthlyRent}/mo
                                 </span>
                               </div>
                               <div className="absolute top-3 left-3 bg-[var(--primary)] text-white px-2 py-1 rounded-lg text-xs font-medium">
@@ -429,16 +452,28 @@ const FeaturedListings = () => {
 
                               {/* Location */}
                               <div className="flex items-center text-[var(--foreground-sec)] mb-3">
-                                <FaMapMarkerAlt className="mr-2 text-[var(--primary)]" size={14} />
-                                <span className="text-sm font-medium">{room.location}</span>
+                                <FaMapMarkerAlt
+                                  className="mr-2 text-[var(--primary)]"
+                                  size={14}
+                                />
+                                <span className="text-sm font-medium">
+                                  {room.location}
+                                </span>
                               </div>
 
                               {/* Rating */}
                               <div className="flex items-center mb-4">
                                 <div className="flex items-center">
-                                  <FaStar className="text-yellow-400 mr-1" size={14} />
-                                  <span className="text-sm font-semibold text-[var(--foreground)]">{room.rating}</span>
-                                  <span className="text-sm text-[var(--foreground-sec)] ml-1">({room.reviewCount} reviews)</span>
+                                  <FaStar
+                                    className="text-yellow-400 mr-1"
+                                    size={14}
+                                  />
+                                  <span className="text-sm font-semibold text-[var(--foreground)]">
+                                    {generateRatingFromViews(room.viewCount, room.id)}
+                                  </span>
+                                  <span className="text-sm text-[var(--foreground-sec)] ml-1">
+                                    ({room.viewCount} views)
+                                  </span>
                                 </div>
                               </div>
 

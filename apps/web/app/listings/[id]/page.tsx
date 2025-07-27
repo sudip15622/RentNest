@@ -51,12 +51,12 @@ export async function generateMetadata({ params }: ListingPageProps) {
 
   if (!listing) {
     return {
-      title: 'Listing Not Found - RentNest',
+      title: 'Listing Not Found | RentNest',
     };
   }
 
   return {
-    title: `${listing.title} - RentNest`,
+    title: `${listing.title} | RentNest`,
     description: listing.description.slice(0, 155) + '...',
     openGraph: {
       title: listing.title,

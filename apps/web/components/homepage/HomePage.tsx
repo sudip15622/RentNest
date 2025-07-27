@@ -1,14 +1,13 @@
 "use client";
 import React from "react";
-import Link from "next/link";
-import Image from "next/image";
 import HeroSection from "./HeroSection";
 import FeaturedListings from "./FeaturedListings";
 import StepGuide from "./StepGuide";
 import Benefits from "./Benefits";
 import Testimonials from "./Testimonials";
+import { Listing } from "../../lib/types";
 
-const HomePage = () => {
+const HomePage = ({featuredListings}: {featuredListings: Listing[]}) => {
   return (
     <main className="relative z-10">
       <HeroSection />
@@ -18,7 +17,7 @@ const HomePage = () => {
         <div className="w-48 h-px bg-gradient-to-r from-transparent via-[var(--primary)]/60 to-transparent"></div>
       </div>
       
-      <FeaturedListings />
+      <FeaturedListings featuredListings={featuredListings}/>
       
       {/* Divider */}
       <div className="w-full flex justify-center py-4">

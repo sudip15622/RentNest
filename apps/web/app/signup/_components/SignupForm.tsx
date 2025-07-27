@@ -7,6 +7,7 @@ import { useToast } from "../../../contexts/ToastContext";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "../../../components/ui/Button";
+import {FaShieldAlt} from 'react-icons/fa';
 
 export default function SignupForm() {
   const router = useRouter();
@@ -71,17 +72,7 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      {/* Header Section */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-[var(--foreground)] mb-3">
-          Become a Landlord
-        </h1>
-        <p className="text-[var(--foreground-sec)] text-lg">
-          Join our platform and start earning from your property today
-        </p>
-      </div>
-
+    <div className="w-full max-w-lg mx-auto">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="w-full flex flex-col gap-y-6 bg-white p-8 rounded-lg shadow-lg border border-[var(--border)]"
@@ -309,6 +300,10 @@ export default function SignupForm() {
             {isSubmitting ? "Creating Account..." : "Become a Landlord"}
           </Button>
           
+          <p className="flex items-center gap-x-2 mx-auto text-center w-fit text-sm text-[var(--primary)] mt-4 py-1 px-4 bg-[var(--primary-light)] rounded-full">
+            <span className="flex items-center justify-center"><FaShieldAlt /></span>
+            <span>Your data is encrypted.</span>
+          </p>
           <p className="text-center text-sm text-[var(--foreground-sec)] mt-4">
             Already have an account?{" "}
             <Link href="/login" className="text-[var(--primary)] font-bold hover:text-[var(--primary-dark)] transition-colors">

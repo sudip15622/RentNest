@@ -23,7 +23,7 @@ const HeroSection = () => {
         <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-[var(--primary)] opacity-5 rounded-full blur-lg"></div>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[75vh]">
           {/* Left Column - Content */}
           <div className="text-center lg:text-left space-y-8">
@@ -79,7 +79,7 @@ const HeroSection = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link
-                href="/search"
+                href="/listings"
                 className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:from-[var(--primary-dark)] hover:to-[var(--primary)] text-white px-6 py-3 rounded-2xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <FaSearch className="w-4 h-4" />
@@ -156,7 +156,7 @@ const HeroSection = () => {
         </div>
 
         {/* Bottom Trust Indicators */}
-        <div className="mt-16 text-center">
+        {/* <div className="mt-16 text-center">
           <p className="text-[var(--foreground-sec)] text-sm mb-6">Trusted by leading property owners and renters across Nepal</p>
           <div className="flex justify-center items-center gap-8 opacity-60">
             <div className="text-[var(--foreground)] font-semibold">Kathmandu Properties</div>
@@ -167,7 +167,7 @@ const HeroSection = () => {
             <div className="w-px h-4 bg-[var(--border)]"></div>
             <div className="text-[var(--foreground)] font-semibold">Lalitpur Living</div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

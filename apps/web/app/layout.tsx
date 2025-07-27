@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "../components/Navbar";
@@ -15,11 +14,6 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
 });
-
-export const metadata: Metadata = {
-  title: "RentNest - Room Rental Service",
-  description: "RentNest is a room rental service platfrom where you can find and book rooms online for rent as well as list your own properties like rooms, flats, apartment, and",
-};
 
 export default async function RootLayout({
   children,

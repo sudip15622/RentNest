@@ -37,7 +37,7 @@ export default function LoginForm() {
       return;
     }
     if(response.success){
-      toast("Login successful!, redirecting...", "success");
+      toast("Login successful!", "success");
       router.push(redirectTo);
     } else {
       if (response.errors) {

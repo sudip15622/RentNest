@@ -12,10 +12,11 @@ const Navbar = ({ user }: { user: any }) => {
   const pathname = usePathname();
   const [showDash, setShowDash] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const showDashRef = useRef<HTMLDivElement>(null);
-  
-  const isHomePage = pathname === '/';
-  const isListRoomPage = pathname === '/list-room';
+
+  const isHomePage = pathname === "/";
+  const isListRoomPage = pathname === "/list-room";
   const isHeroPage = isHomePage || isListRoomPage;
 
   useEffect(() => {
@@ -26,7 +27,7 @@ const Navbar = ({ user }: { user: any }) => {
     };
 
     if (isHeroPage) {
-      window.addEventListener('scroll', handleScroll);
+      window.addEventListener("scroll", handleScroll);
       handleScroll(); // Check initial position
     } else {
       setIsScrolled(true); // Always use white background on non-hero pages
@@ -34,7 +35,7 @@ const Navbar = ({ user }: { user: any }) => {
 
     return () => {
       if (isHeroPage) {
-        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener("scroll", handleScroll);
       }
     };
   }, [isHeroPage]);
@@ -57,30 +58,40 @@ const Navbar = ({ user }: { user: any }) => {
 
   const handleSignOut = async () => {
     await fetch("/api/auth/signout");
+    setLoading(false);
     setShowDash(false);
     router.refresh();
   };
 
   return (
-    <nav className={`fixed top-0 left-0 z-[1000] w-full flex items-center justify-center transition-all duration-300 ease-out ${
-      isScrolled 
-        ? 'bg-[var(--background)]/95 backdrop-blur-md shadow-sm' 
-        : 'bg-transparent'
-    }`}>
+    <nav
+      className={`fixed top-0 left-0 z-[1000] w-full flex items-center justify-center transition-all duration-300 ease-out ${
+        isScrolled
+          ? "bg-[var(--background)]/95 backdrop-blur-md shadow-sm"
+          : "bg-transparent"
+      }`}
+    >
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-row items-center justify-between">
         <Link href={"/"} className="flex flex-row items-center gap-x-2">
-        <Image className="object-cover w-8 h-8" src={"/rentnest.png"} width={50} height={50} alt="logo" priority/>
-          <span className={`text-[var(--primary-dark)] text-xl font-extrabold transition-all duration-300 ease-out ${
-            isScrolled 
-              ? ''
-              : 'drop-shadow-sm'
-          }`}>
+          <Image
+            className="object-cover w-8 h-8"
+            src={"/rentnest.png"}
+            width={50}
+            height={50}
+            alt="logo"
+            priority
+          />
+          <span
+            className={`text-[var(--primary-dark)] text-xl font-extrabold transition-all duration-300 ease-out ${
+              isScrolled ? "" : "drop-shadow-sm"
+            }`}
+          >
             RentNest
           </span>
         </Link>
         <div className="hidden md:flex items-center gap-x-8">
           <Link
-            href={"/search"}
+            href={"/listings"}
             className={`transition-all duration-300 ease-out font-medium text-lg text-[var(--foreground)] hover:text-[var(--primary-dark)]`}
           >
             Search Rooms
@@ -89,7 +100,7 @@ const Navbar = ({ user }: { user: any }) => {
             href={"/list-room"}
             className={`transition-all duration-300 ease-out font-medium text-lg text-[var(--foreground)] hover:text-[var(--primary-dark)]`}
           >
-            List a Room
+            List your Room
           </Link>
           {user ? (
             <div
@@ -100,6 +111,7 @@ const Navbar = ({ user }: { user: any }) => {
                 onClick={() => setShowDash(!showDash)}
                 className={`cursor-pointer rounded-full object-cover h-8 w-8 ring-2 transition-all duration-300 ease-out ring-[var(--primary)]/30 hover:ring-[var(--primary)]/50`}
                 src={user.image}
+                priority
                 width={50}
                 height={50}
                 alt="user-avatar"
@@ -125,14 +137,23 @@ const Navbar = ({ user }: { user: any }) => {
                 >
                   Profile
                 </Link>
+
                 <button
-                  onClick={() => handleSignOut()}
-                  className="w-full flex items-center justify-start flex-row gap-x-2 text-red-500 pt-2 pb-3 px-4 hover:bg-red-50 transition-colors duration-200 ease-in-out font-medium"
+                  onClick={() => {
+                    setLoading(true);
+                    handleSignOut();
+                  }}
+                  className="w-full flex items-center justify-between flex-row text-red-500 pt-2 pb-3 px-4 hover:bg-red-50 transition-colors duration-200 ease-in-out font-medium"
                 >
-                  <span>Log Out</span>
-                  <span className="flex items-center justify-center">
-                    <MdLogout />
-                  </span>
+                  <div className="flex items-center justify-start gap-x-2">
+                    <span>Log Out</span>
+                    <span className="flex items-center justify-center">
+                      <MdLogout />
+                    </span>
+                  </div>
+                  {loading && (
+                    <span className="animate-spin self-end rounded-full h-4 w-4 border-b-2 border-red-500"></span>
+                  )}
                 </button>
               </div>
             </div>
@@ -141,9 +162,9 @@ const Navbar = ({ user }: { user: any }) => {
               <Link
                 href={"/login"}
                 className={`transition-all duration-300 ease-out font-medium text-lg ${
-                  isScrolled 
-                    ? 'text-[var(--primary)] hover:text-[var(--primary-dark)]'
-                    : 'text-[var(--primary)] hover:text-[var(--primary-dark)]'
+                  isScrolled
+                    ? "text-[var(--primary)] hover:text-[var(--primary-dark)]"
+                    : "text-[var(--primary)] hover:text-[var(--primary-dark)]"
                 }`}
               >
                 Login
@@ -151,9 +172,9 @@ const Navbar = ({ user }: { user: any }) => {
               <Link
                 href={"/signup"}
                 className={`transition-all duration-300 ease-out font-medium rounded-lg px-4 py-2 shadow-lg hover:shadow-xl ${
-                  isScrolled 
-                    ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:from-[var(--primary-dark)] hover:to-[var(--primary)] text-white'
-                    : 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:from-[var(--primary-dark)] hover:to-[var(--primary)] text-white'
+                  isScrolled
+                    ? "bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:from-[var(--primary-dark)] hover:to-[var(--primary)] text-white"
+                    : "bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:from-[var(--primary-dark)] hover:to-[var(--primary)] text-white"
                 }`}
               >
                 Sign Up
@@ -164,11 +185,13 @@ const Navbar = ({ user }: { user: any }) => {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <button className={`p-2 rounded-lg transition-all duration-300 ease-out ${
-            isScrolled 
-              ? 'hover:bg-[var(--primary-light)] text-[var(--primary)]'
-              : 'hover:bg-[var(--primary-light)] text-[var(--primary)]'
-          }`}>
+          <button
+            className={`p-2 rounded-lg transition-all duration-300 ease-out ${
+              isScrolled
+                ? "hover:bg-[var(--primary-light)] text-[var(--primary)]"
+                : "hover:bg-[var(--primary-light)] text-[var(--primary)]"
+            }`}
+          >
             <IoMenu className="w-6 h-6" />
           </button>
         </div>

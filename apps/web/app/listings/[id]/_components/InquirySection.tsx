@@ -2,9 +2,18 @@
 
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { FaWhatsapp, FaEnvelope, FaExclamationTriangle, FaTimes } from "react-icons/fa";
+import {
+  FaWhatsapp,
+  FaEnvelope,
+  FaExclamationTriangle,
+  FaTimes,
+  FaChevronDown,
+} from "react-icons/fa";
 import Input from "../../../../components/ui/Input";
 import Textarea from "../../../../components/ui/Textarea";
+import { useToast } from "../../../../contexts/ToastContext";
+import { createInquiry } from "../../../../lib/actions";
+import { CreateInquiryType } from "../../../../lib/types";
 
 interface InquirySectionProps {
   listingId: string;
@@ -13,52 +22,83 @@ interface InquirySectionProps {
   monthlyRent: number;
 }
 
-export default function InquirySection({ 
-  listingId, 
-  ownerName, 
-  ownerPhone, 
-  monthlyRent 
+export default function InquirySection({
+  listingId,
+  ownerName,
+  ownerPhone,
+  monthlyRent,
 }: InquirySectionProps) {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { control, handleSubmit, reset, formState: { errors } } = useForm({
+  const [hideInquiry, setHideInquiry] = useState(false);
+  const { toast } = useToast();
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm({
     defaultValues: {
-      name: '',
-      phone: '',
-      email: '',
-      message: '',
-    }
+      name: "",
+      phoneNumber: "",
+      email: "",
+      message: "",
+    },
   });
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-NP', {
-      style: 'currency',
-      currency: 'NPR',
+    return new Intl.NumberFormat("en-NP", {
+      style: "currency",
+      currency: "NPR",
       minimumFractionDigits: 0,
     }).format(price);
   };
 
   const handleWhatsApp = () => {
     const message = `Hi ${ownerName}, I'm interested in your room listing (ID: ${listingId}) with rent ${formatPrice(monthlyRent)}/month. Could you please provide more details?`;
-    const whatsappNumber = ownerPhone.replace(/\D/g, ''); // Remove non-digits
+    const whatsappNumber = ownerPhone.replace(/\D/g, ""); // Remove non-digits
     const whatsappUrl = `https://wa.me/977${whatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    window.open(whatsappUrl, "_blank");
   };
 
   const handleSubmitInquiry = async (data: any) => {
-    setIsSubmitting(true);
-    
     // TODO: Implement inquiry submission to backend
-    console.log('Inquiry data:', { ...data, listingId });
-    
+    if (isSubmitting) return;
+    if (!isValid) return;
+
     // For now, just simulate a successful submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const response = await createInquiry(data, listingId);
+    if (!response) {
+      toast("Something went wrong!, Try again.", "error");
+      return;
+    }
+
+    if (response.success) {
       setShowInquiryForm(false);
       reset();
-      alert('Your inquiry has been sent successfully!');
-    }, 1000);
+      toast("Your inquiry has been sent successfully!", "success");
+    } else {
+      if (response?.errors) {
+        Object.entries(response.errors).forEach(([field, messages]) => {
+          if (Array.isArray(messages) && messages?.length > 0) {
+            // Only set error if field exists in our signup form
+            if (["name", "email", "phoneNumber", "message"].includes(field)) {
+              setError(field as keyof CreateInquiryType, {
+                type: "server",
+                message: messages[0], // Show the first error message
+              });
+            }
+          }
+        });
+
+        return;
+      }
+
+      if (response?.message) {
+        toast(response.message, "error");
+        return;
+      }
+    }
   };
 
   const openInquiryDialog = () => {
@@ -78,7 +118,9 @@ export default function InquirySection({
         <div className="text-center mb-6 p-4 bg-white rounded-xl border border-[var(--border)] shadow-sm">
           <div className="text-2xl font-extrabold text-[var(--primary)] mb-1">
             {formatPrice(monthlyRent)}
-            <span className="text-base text-[var(--foreground-sec)] font-normal">/month</span>
+            <span className="text-base text-[var(--foreground-sec)] font-normal">
+              /month
+            </span>
           </div>
           <p className="text-[var(--foreground-sec)] text-sm">Monthly Rent</p>
           <div className="mt-2 inline-flex items-center px-3 py-1 bg-[var(--primary-light)] text-[var(--primary-dark)] rounded-full text-xs font-medium">
@@ -116,7 +158,9 @@ export default function InquirySection({
               <ul className="text-xs space-y-1.5 leading-relaxed">
                 <li className="flex items-start">
                   <span className="text-amber-600 mr-2">•</span>
-                  <span>Always visit the property before making any payment</span>
+                  <span>
+                    Always visit the property before making any payment
+                  </span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-amber-600 mr-2">•</span>
@@ -133,15 +177,31 @@ export default function InquirySection({
       </div>
 
       {/* Mobile Version - Sticky Bottom Buttons */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[var(--border)] shadow-lg backdrop-blur-sm">
+      <div
+        className={`lg:hidden fixed ${hideInquiry ? "-bottom-24" : "bottom-0"} left-0 right-0 z-50 bg-white border-t border-[var(--border)] shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out`}
+      >
+        <button
+          onClick={(e) => setHideInquiry(!hideInquiry)}
+          type="button"
+          className={`absolute text-xl top-0 right-5 -translate-y-[100%] bg-white px-2 py-1 rounded-t-lg border-x-1 border-t-1 border-[var(--border)]`}
+        >
+          <span className="transition-all duration-300 ease-in-out">
+            <FaChevronDown
+              className={`transform transition-transform duration-300 ${hideInquiry ? "rotate-180" : ""}`}
+            />
+          </span>
+        </button>
         <div className="max-w-lg mx-auto px-4 py-3">
           {/* Price Display */}
           <div className="text-center mb-3">
             <span className="text-lg font-bold text-[var(--primary)]">
-              {formatPrice(monthlyRent)}<span className="text-sm text-[var(--foreground-sec)] font-normal">/month</span>
+              {formatPrice(monthlyRent)}
+              <span className="text-sm text-[var(--foreground-sec)] font-normal">
+                /month
+              </span>
             </span>
           </div>
-          
+
           {/* Compact Buttons */}
           <div className="flex space-x-3">
             <button
@@ -169,7 +229,9 @@ export default function InquirySection({
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             {/* Dialog Header */}
             <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
-              <h4 className="text-xl font-semibold text-[var(--foreground)]">Send an Inquiry</h4>
+              <h4 className="text-xl font-semibold text-[var(--foreground)]">
+                Send an Inquiry
+              </h4>
               <button
                 onClick={closeInquiryDialog}
                 className="text-[var(--foreground-sec)] hover:text-[var(--foreground)] transition-colors"
@@ -180,12 +242,22 @@ export default function InquirySection({
 
             {/* Dialog Content */}
             <div className="p-6">
-              <form onSubmit={handleSubmit(handleSubmitInquiry)} className="space-y-4">
+              <form
+                onSubmit={handleSubmit(handleSubmitInquiry)}
+                className="space-y-4"
+              >
                 <div className="mb-6">
                   <Controller
                     name="name"
                     control={control}
-                    rules={{ required: 'Name is required' }}
+                    rules={{
+                      required: "Full name is Required!",
+                      pattern: {
+                        value: /^[A-Za-z]+(?: [A-Za-z]+)*$/,
+                        message:
+                          "Name must contain only letters and a single space between words!",
+                      },
+                    }}
                     render={({ field }) => (
                       <Input
                         field={field}
@@ -196,33 +268,40 @@ export default function InquirySection({
                     )}
                   />
                 </div>
-                
+
                 <div className="mb-6">
                   <Controller
-                    name="phone"
+                    name="phoneNumber"
                     control={control}
-                    rules={{ required: 'Phone number is required' }}
+                    rules={{
+                      required: "Phone number is required!",
+                      pattern: {
+                        value: /^(98|97)[0-9]{8}$/,
+                        message: "Invalid phone number!",
+                      },
+                    }}
                     render={({ field }) => (
                       <Input
                         field={field}
-                        error={errors.phone}
+                        error={errors.phoneNumber}
                         label="Your Phone Number"
                         type="tel"
                       />
                     )}
                   />
                 </div>
-                
+
                 <div className="mb-6">
                   <Controller
                     name="email"
                     control={control}
-                    rules={{ 
-                      required: 'Email is required',
+                    rules={{
+                      required: "Email is required!",
                       pattern: {
-                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: 'Invalid email address'
-                      }
+                        value:
+                          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                        message: "Invalid email address!",
+                      },
                     }}
                     render={({ field }) => (
                       <Input
@@ -234,11 +313,22 @@ export default function InquirySection({
                     )}
                   />
                 </div>
-                
+
                 <div className="mb-8">
                   <Controller
                     name="message"
                     control={control}
+                    rules={{
+                      required: "Message is required!",
+                      minLength: {
+                        value: 10,
+                        message: "Message must be at least 10 characters!",
+                      },
+                      maxLength: {
+                        value: 500,
+                        message: "Message must be less than 500 characters!",
+                      },
+                    }}
                     render={({ field }) => (
                       <Textarea
                         field={field}
@@ -248,7 +338,7 @@ export default function InquirySection({
                     )}
                   />
                 </div>
-                
+
                 {/* Dialog Actions */}
                 <div className="flex space-x-3 pt-6">
                   <button
@@ -263,7 +353,7 @@ export default function InquirySection({
                     disabled={isSubmitting}
                     className="w-full px-4 py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
                   >
-                    {isSubmitting ? 'Sending...' : 'Send Inquiry'}
+                    {isSubmitting ? "Sending..." : "Send Inquiry"}
                   </button>
                 </div>
               </form>
