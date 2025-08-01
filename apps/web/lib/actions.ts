@@ -1,7 +1,7 @@
 "use server";
 
 import { BACKEND_URL } from "./constants";
-import { Listing } from "./types";
+import { Listing, UpdateUserSchema, UpdateUserType } from "./types";
 import {
   CustomFormState,
   CreateListingType,
@@ -11,11 +11,65 @@ import {
 } from "./types";
 import { formatZodErrors } from "./utils";
 import { authFetch } from "./authFetch";
+import { updateSession } from "./session";
 
 export const getProfile = async () => {
   const response = await authFetch(`${BACKEND_URL}/user/profile`);
+
+  if (!response.ok) {
+    console.error("Cannot get user details!");
+    return null;
+  }
   const result = await response.json();
   return result;
+};
+
+export const updateUserDetails = async (
+  details: UpdateUserType,
+  isImage: boolean = false
+): Promise<CustomFormState> => {
+  const validationFields = UpdateUserSchema.safeParse(details);
+
+  if (!validationFields.success) {
+    return {
+      success: false,
+      errors: formatZodErrors(validationFields.error),
+    };
+  }
+
+  try {
+    const response = await authFetch(`${BACKEND_URL}/user/update`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(validationFields.data),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      if (isImage && result?.image) {
+        await updateSession(result.image);
+      }
+      return {
+        success: true,
+      };
+    } else {
+      return {
+        success: false,
+        message:
+          response.status === 404
+            ? "User not found!"
+            : response.statusText || "Something went wrong!",
+      };
+    }
+  } catch (error) {
+    console.error("Error updating user details:", error);
+    return {
+      success: false,
+      message: "Cannot update now, try again later!",
+    };
+  }
 };
 
 // Remove the uploadToCloudinary function and simplify createListing
@@ -36,21 +90,21 @@ export const createListing = async (
     // Helper function to map lease duration labels to enum values
     const mapLeaseDuration = (leaseDuration: string): string => {
       const mapping: Record<string, string> = {
-        "Monthly": "monthly",
-        "Quarterly (3 months)": "quarterly", 
+        Monthly: "monthly",
+        "Quarterly (3 months)": "quarterly",
         "Biannually (6 months)": "biannually",
-        "Yearly": "yearly",
-        "Flexible": "flexible",
+        Yearly: "yearly",
+        Flexible: "flexible",
       };
       return mapping[leaseDuration] || "flexible";
     };
 
-    // Helper function to map room type labels to enum values  
+    // Helper function to map room type labels to enum values
     const mapRoomType = (roomType: string): string => {
       const mapping: Record<string, string> = {
         "Single Room": "single",
-        "Shared Room": "shared", 
-        "Studio": "studio",
+        "Shared Room": "shared",
+        Studio: "studio",
         "1BHK Apartment": "master",
         "Double Room": "double",
       };
@@ -96,23 +150,20 @@ export const createListing = async (
     };
 
     // Step 3: Send transformed data to backend
-    const response = await authFetch(
-      `${BACKEND_URL}/listing/create`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(backendData),
-      }
-    );
+    const response = await authFetch(`${BACKEND_URL}/listing/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(backendData),
+    });
 
     if (response.ok) {
       const result = await response.json();
 
       return {
-        success: true
-      }
+        success: true,
+      };
     } else {
       return {
         success: false,
@@ -124,26 +175,30 @@ export const createListing = async (
     }
   } catch (error) {
     console.error("Error creating listing:", error);
-    
+
     // Handle authentication errors from clientAuthFetch
     if (error instanceof Error) {
-      if (error.message.includes("No session found") || 
-          error.message.includes("Please login")) {
+      if (
+        error.message.includes("No session found") ||
+        error.message.includes("Please login")
+      ) {
         return {
           success: false,
           message: "Please login to create a listing",
         };
       }
-      
-      if (error.message.includes("Authentication failed") || 
-          error.message.includes("Session expired")) {
+
+      if (
+        error.message.includes("Authentication failed") ||
+        error.message.includes("Session expired")
+      ) {
         return {
           success: false,
           message: "Your session has expired. Please login again",
         };
       }
     }
-    
+
     return {
       success: false,
       message:
@@ -151,7 +206,6 @@ export const createListing = async (
     };
   }
 };
-
 
 export async function createInquiry(
   details: CreateInquiryType,
@@ -162,53 +216,62 @@ export async function createInquiry(
   if (!validationFields.success) {
     return {
       success: false,
-      errors: formatZodErrors(validationFields.error)
+      errors: formatZodErrors(validationFields.error),
     };
   }
 
-  const response = await fetch(`${BACKEND_URL}/inquiry/create`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      ...validationFields.data,
-      listingId: listingId
-    }),
-  });
+  try {
+    const response = await fetch(`${BACKEND_URL}/inquiry/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...validationFields.data,
+        listingId: listingId,
+      }),
+    });
 
-  if (response.ok) {
-    const result = await response.json();
+    if (response.ok) {
+      const result = await response.json();
 
-    return {
-      success: true
+      return {
+        success: true,
+      };
+    } else {
+      return {
+        success: false,
+        message:
+          response.status === 404
+            ? "Listing not found!"
+            : response.statusText || "Something went wrong!",
+      };
     }
-  } else {
+  } catch (error) {
+    console.error("Error sending inquiry:", error);
     return {
       success: false,
-      message:
-        response.status === 404 ? "Listing not found!" : response.statusText || "Something went wrong!",
+      message: "Cannot send inquiry, try again!",
     };
   }
 }
 
-
 export async function getFeaturedListings(): Promise<Listing[]> {
   try {
     const response = await fetch(`${BACKEND_URL}/listing/featured?limit=6`, {
-      cache: 'no-store', // Always fetch fresh data
+      cache: "no-store", // Always fetch fresh data
     });
-    
+
     if (!response.ok) {
-      console.error('Failed to fetch featured listings:', response.statusText);
+      console.error("Failed to fetch featured listings:", response.statusText);
       return [];
     }
     const result = await response.json();
     // console.log(result);
-    
+
     return result;
   } catch (error) {
-    console.error('Error fetching featured listings:', error);
+    console.error("Error fetching featured listings:", error);
     return []; // Return empty array on error
   }
 }

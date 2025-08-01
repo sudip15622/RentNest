@@ -52,3 +52,20 @@ export async function getSession() {
 export async function deleteSession () {
     (await cookies()).delete("session");
 }
+
+export async function updateSession (image: string) {
+  const session = await getSession();
+  if(!session) {
+    throw new Error("Cookie not found!");
+  }
+
+  const newSession: Session = {
+    user: {
+      id: session.user.id,
+      image: image
+    },
+    accessToken: session.accessToken
+  };
+
+  await createSession(newSession);
+}

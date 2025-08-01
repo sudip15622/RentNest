@@ -1,19 +1,19 @@
-import React from 'react'
-import { getProfile } from '../../lib/actions'
-import { Metadata } from 'next';
+import React from "react";
+import { getProfile } from "../../lib/actions";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Landlord Profile | RentNest",
   description: "Visit your landlord profile, manage you personal information.",
 };
 
-const page = async() => {
+const page = async () => {
   const res = await getProfile();
   return (
-    <main className='page-content'>
+    <main className="page-content min-h-screen bg-[var(--background)]">
       {JSON.stringify(res)}
     </main>
-  )
-}
+  );
+};
 
-export default page
+export default page;
