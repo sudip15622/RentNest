@@ -130,13 +130,6 @@ const Navbar = ({ user }: { user: any }) => {
                 >
                   Dashboard
                 </Link>
-                <Link
-                  href={"/profile"}
-                  onClick={() => setShowDash(false)}
-                  className="w-full flex items-center justify-start flex-row py-2 px-4 hover:bg-[var(--primary-light)] transition-colors duration-200 ease-in-out font-medium"
-                >
-                  Profile
-                </Link>
 
                 <button
                   onClick={() => {

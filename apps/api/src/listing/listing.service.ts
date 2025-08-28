@@ -281,4 +281,86 @@ export class ListingService {
       );
     }
   }
+
+  async findUserListings(
+    userId: string,
+    options?: {
+      page?: number;
+      limit?: number;
+      status?: ListingStatus;
+      includeInactive?: boolean;
+    },
+  ) {
+    try {
+      const {
+        page = 1,
+        limit = 10,
+        status,
+        includeInactive = false,
+      } = options || {};
+
+      // Build where clause
+      const whereClause: any = {
+        ownerId: userId, // Fix: should be ownerId, not userId
+      };
+
+      // Only show active listings by default
+      if (!includeInactive) {
+        whereClause.isActive = true;
+      }
+
+      // Filter by status if provided
+      if (status) {
+        whereClause.status = status;
+      }
+
+      // Calculate pagination
+      const skip = (page - 1) * limit;
+
+      // Execute queries
+      const [listings, totalCount] = await Promise.all([
+        this.prisma.client.listing.findMany({
+          where: whereClause,
+          select: {
+            id: true,
+            title: true,
+            location: true,
+            photos: true,
+            roomType: true,
+            monthlyRent: true,
+            // bedrooms: true,
+            // bathrooms: true,
+            viewCount: true,
+            status: true,
+            isActive: true,
+            // featured: true,
+            createdAt: true,
+            // updatedAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.client.listing.count({
+          where: whereClause,
+        }),
+      ]);
+
+      return {
+        listings,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(totalCount / limit),
+          totalCount,
+          hasNext: page < Math.ceil(totalCount / limit),
+          hasPrev: page > 1,
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching user listings:', error);
+      throw new BadRequestException(
+        'Failed to fetch user listings: ' + error.message,
+      );
+    }
+  }
 }

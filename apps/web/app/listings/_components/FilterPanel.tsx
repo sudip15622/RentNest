@@ -72,9 +72,9 @@ export default function FilterPanel({
               <TextField
                 fullWidth
                 placeholder="Min rent"
-                value={filters.minRent || ""}
+                value={filters.minRent?.toString() || ""}
                 onChange={(e) =>
-                  onFilterChange({ minRent: parseInt(e.target.value) || 0 })
+                  onFilterChange({ minRent: parseInt(e.target.value) || undefined })
                 }
                 type="number"
                 size="small"
@@ -103,10 +103,10 @@ export default function FilterPanel({
               <TextField
                 fullWidth
                 placeholder="Max rent"
-                value={filters.maxRent === 100000 ? "" : filters.maxRent}
+                value={filters.maxRent?.toString() || ""}
                 onChange={(e) =>
                   onFilterChange({
-                    maxRent: parseInt(e.target.value) || 100000,
+                    maxRent: parseInt(e.target.value) || undefined,
                   })
                 }
                 type="number"
@@ -144,8 +144,8 @@ export default function FilterPanel({
             <div>
               <FormControl fullWidth size="small">
                 <MuiSelect
-                  value={filters.city}
-                  onChange={(e) => onFilterChange({ city: e.target.value })}
+                  value={filters.city || ""}
+                  onChange={(e) => onFilterChange({ city: e.target.value || undefined })}
                   displayEmpty
                   sx={{
                     "& .MuiOutlinedInput-notchedOutline": {

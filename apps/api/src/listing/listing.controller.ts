@@ -4,6 +4,7 @@ import { CreateListingDto, CreateListingSchema } from './schemas/create-listing.
 import { FilterListingDto, FilterListingSchema } from './schemas/filter-listing.schema';
 import { ZodValidationPipe } from 'src/auth/pipes/zod-validation.pipe';
 import { Public } from 'src/auth/decorators/public.decorator';
+import { ListingStatus } from '../../generated/prisma';
 
 @Controller('listing')
 export class ListingController {
@@ -27,6 +28,24 @@ export class ListingController {
     const listingLimit = limit ? parseInt(limit, 10) : 6;
     return this.listingService.findFeatured(listingLimit);
   }
+
+  @Get("my-listings")
+getUserListings(
+  @Request() req: any, 
+  @Query('page') page?: string,
+  @Query('limit') limit?: string,
+  @Query('status') status?: string
+) {
+  const queryParams = {
+    page: page ? parseInt(page, 10) : 1,
+    limit: limit ? parseInt(limit, 10) : 10,
+    status: status && Object.values(ListingStatus).includes(status as ListingStatus) 
+      ? (status as ListingStatus) 
+      : undefined,
+    includeInactive: true
+  };
+  return this.listingService.findUserListings(req.user.id, queryParams);
+}
 
   @Public()
   @Get(":id")

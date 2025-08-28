@@ -244,7 +244,7 @@ const CreateListingForm = () => {
         fieldsToValidate = [];
         break;
       case 3:
-        fieldsToValidate = ["monthlyRent", "securityDeposit", "availableFrom"];
+        fieldsToValidate = ["monthlyRent", "securityDeposit", "availableFrom", "leaseDuration", "utilitiesIncluded", "internetIncluded"];
         break;
       default:
         fieldsToValidate = [];

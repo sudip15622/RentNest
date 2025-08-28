@@ -1,12 +1,8 @@
 import React from 'react'
 import { getSession } from '../../lib/session';
 import { redirect } from 'next/navigation';
-import { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: "Landlord Dashboard | RentNest",
-  description: "Visit your landlord dashboard, manage all of your listings, view inquires sent by renters and many more.",
-};
+import DashboardClient from './_components/DashboardClient';
+import { getProfile } from '../../lib/actions';
 
 const page = async() => {
 
@@ -14,9 +10,11 @@ const page = async() => {
     // console.log({session});
     if(!session || !session?.user) redirect(`/login?redirectTo=${encodeURIComponent("/dashboard")}`);
     // if(session.user.role !== "admin") redirect("/login");
+
+    const user = await getProfile();
     
   return (
-    <main>This is dashboard</main>
+    <DashboardClient user={user} />
   )
 }
 

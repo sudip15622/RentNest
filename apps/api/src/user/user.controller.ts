@@ -20,4 +20,9 @@ export class UserController {
   updateUser(@Request() req: any, @Body(new ZodValidationPipe(UpdateUserSchema)) updateUserDto: UpdateUserDto) {
     return this.userService.updateBasicDetails(req.user.id, updateUserDto);
   }
+
+  @Get('stats')
+  async getUserStats(@Request() req: any) {
+    return this.userService.getUserStats(req.user.id);
+  }
 }

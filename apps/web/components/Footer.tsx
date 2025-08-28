@@ -14,7 +14,7 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-[var(--background)] border-t border-[var(--border)] footer-spacing">
+    <footer className="z-[1000] bg-[var(--background)] border-t border-[var(--border)] footer-spacing">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

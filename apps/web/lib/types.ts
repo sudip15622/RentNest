@@ -157,9 +157,10 @@ export interface Listing {
   photos: string[];
   viewCount: number;
   roomType: string;
-  featured: boolean,
-  isActive: boolean,
-  status: string,
+  featured?: boolean;
+  isActive: boolean;
+  status: string;
+  createdAt?: string;
 }
 
 export const UpdateUserSchema = z
@@ -174,3 +175,14 @@ export const UpdateUserSchema = z
   .strict();
 
 export type UpdateUserType = z.infer<typeof UpdateUserSchema>;
+
+export interface UserStats {
+  totalListings: number;
+  totalViews: number;
+  totalInquiries: number;
+  trends: {
+    listingsThisMonth: number;
+    inquiriesToday: number;
+    viewGrowthPercentage: number;
+  };
+}

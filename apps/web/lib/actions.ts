@@ -275,3 +275,124 @@ export async function getFeaturedListings(): Promise<Listing[]> {
     return []; // Return empty array on error
   }
 }
+export async function getListingsByUser(options?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+}): Promise<{ listings: Listing[]; pagination: any } | null> {
+  try {
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    if (options?.page) queryParams.append('page', options.page.toString());
+    if (options?.limit) queryParams.append('limit', options.limit.toString());
+    if (options?.status) queryParams.append('status', options.status);
+
+    const url = `${BACKEND_URL}/listing/my-listings${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    // console.log('Fetching user listings from:', url);
+    
+    const response = await authFetch(url, {
+      cache: "no-store", // Always fetch fresh data
+    });
+
+    // console.log('Response status:', response.status);
+    // console.log('Response ok:', response.ok);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to fetch user listings:", response.statusText, errorText);
+      return null;
+    }
+    
+    const result = await response.json();
+    // console.log('User listings result:', result);
+    return result;
+  } catch (error) {
+    console.error("Error fetching user listings:", error);
+    return null;
+  }
+}
+
+export async function getInquiriesByUser(options?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+}): Promise<{ inquiries: any[]; pagination: any } | null> {
+  try {
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    if (options?.page) queryParams.append('page', options.page.toString());
+    if (options?.limit) queryParams.append('limit', options.limit.toString());
+    if (options?.status) queryParams.append('status', options.status);
+
+    const url = `${BACKEND_URL}/inquiry/my-inquiries${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    console.log('Fetching user inquiries from:', url);
+    
+    const response = await authFetch(url, {
+      cache: "no-store", // Always fetch fresh data
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to fetch user inquiries:", response.statusText, errorText);
+      return null;
+    }
+    
+    const result = await response.json();
+    console.log('User inquiries result:', result);
+    return result;
+  } catch (error) {
+    console.error("Error fetching user inquiries:", error);
+    return null;
+  }
+}
+
+export async function updateInquiryStatus(
+  inquiryId: string,
+  status: string
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await authFetch(`${BACKEND_URL}/inquiry/${inquiryId}/status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Failed to update inquiry status:", response.statusText, errorText);
+      return {
+        success: false,
+        message: response.statusText || "Failed to update inquiry status",
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating inquiry status:", error);
+    return {
+      success: false,
+      message: "Failed to update inquiry status",
+    };
+  }
+}
+
+export const getUserStats = async () => {
+  try {
+    const response = await authFetch(`${BACKEND_URL}/user/stats`);
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch user stats");
+    }
+    
+    const stats = await response.json();
+    return stats;
+  } catch (error) {
+    console.error("Error fetching user stats:", error);
+    throw error;
+  }
+};

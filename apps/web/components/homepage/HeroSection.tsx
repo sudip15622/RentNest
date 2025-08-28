@@ -110,6 +110,22 @@ const HeroSection = () => {
           <div className="relative lg:h-full flex items-center justify-center">
             {/* Main Image Container */}
             <div className="relative w-full max-w-lg">
+              {/* Hero Image */}
+              <div className="relative bg-gradient-to-br from-white to-[var(--primary-light)] rounded-2xl p-8 shadow-2xl">
+                <Image
+                  src="/hero_image.png"
+                  alt="Find Perfect Rooms in Nepal"
+                  width={500}
+                  height={400}
+                  className="w-full h-auto rounded-xl"
+                  priority
+                />
+                
+                {/* Overlay Badge */}
+                <div className="absolute top-4 right-4 bg-[var(--primary)] text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  #1 in Nepal
+                </div>
+              </div>
               {/* Floating Cards */}
               <div className="absolute -top-8 -left-8 bg-white rounded-xl p-4 shadow-lg border border-[var(--primary)]/10 animate-pulse">
                 <div className="flex items-center gap-3">
@@ -132,23 +148,6 @@ const HeroSection = () => {
                     <div className="font-semibold text-[var(--foreground)] text-sm">100% Verified</div>
                     <div className="text-[var(--foreground-sec)] text-xs">Safe & Secure</div>
                   </div>
-                </div>
-              </div>
-
-              {/* Hero Image */}
-              <div className="relative bg-gradient-to-br from-white to-[var(--primary-light)] rounded-2xl p-8 shadow-2xl">
-                <Image
-                  src="/hero_image.png"
-                  alt="Find Perfect Rooms in Nepal"
-                  width={500}
-                  height={400}
-                  className="w-full h-auto rounded-xl"
-                  priority
-                />
-                
-                {/* Overlay Badge */}
-                <div className="absolute top-4 right-4 bg-[var(--primary)] text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  #1 in Nepal
                 </div>
               </div>
             </div>
