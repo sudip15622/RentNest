@@ -3,8 +3,9 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FaEdit, FaTrash, FaEye, FaPlus, FaMapMarkerAlt, FaBuilding, FaChevronDown } from "react-icons/fa";
-import { getListingsByUser } from "../../../lib/actions";
+import { getListingsByUser, toggleListingStatus, deleteListing, restoreListing } from "../../../lib/actions";
 import { Listing } from "../../../lib/types";
+import { useToast } from "../../../contexts/ToastContext";
 
 interface MyListingsProps {
   userId: string;
@@ -15,6 +16,9 @@ export default function MyListings({ userId, isPreview = false }: MyListingsProp
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [showMore, setShowMore] = useState(false);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [showDeleted, setShowDeleted] = useState(false);
+  const { toast } = useToast();
 
   // Determine how many items to show
   const itemsToShow = isPreview ? 3 : (showMore ? listings.length : 5);
@@ -24,7 +28,8 @@ export default function MyListings({ userId, isPreview = false }: MyListingsProp
       try {
         setLoading(true);
         const result = await getListingsByUser({
-          limit: isPreview ? 3 : 10
+          limit: isPreview ? 3 : 10,
+          includeInactive: showDeleted
         });
         
         if (result && result.listings) {
@@ -41,20 +46,91 @@ export default function MyListings({ userId, isPreview = false }: MyListingsProp
     };
 
     fetchListings();
-  }, [userId, isPreview]);
+  }, [userId, isPreview, showDeleted]);
 
-  const handleDelete = (listingId: string) => {
-    if (confirm("Are you sure you want to delete this listing?")) {
-      setListings(listings.filter(listing => listing.id !== listingId));
+  const handleDelete = async (listingId: string) => {
+    // Create a more sophisticated confirmation dialog
+    const confirmMessage = `Are you sure you want to delete this listing?
+
+Choose deletion type:
+• Cancel - Keep the listing
+• OK - Hide listing (can be restored later)
+• Hold Ctrl+Click - Permanently delete (cannot be undone)`;
+
+    const isCtrlPressed = (event: MouseEvent) => event.ctrlKey;
+    
+    // For now, let's use a simple confirm but add a second confirmation for hard delete
+    if (confirm("Are you sure you want to delete this listing? This will hide it from your active listings.")) {
+      const hardDelete = confirm("Do you want to PERMANENTLY delete this listing? (This cannot be undone)\n\nClick OK for permanent deletion, or Cancel for temporary removal.");
+      
+      try {
+        setProcessingId(listingId);
+        const result = await deleteListing(listingId, hardDelete);
+        
+        if (result.success) {
+          // Remove from local state
+          setListings(listings.filter(listing => listing.id !== listingId));
+          toast(result.message || "Listing deleted successfully", "success");
+        } else {
+          toast(result.message || "Failed to delete listing", "error");
+        }
+      } catch (error) {
+        console.error("Error deleting listing:", error);
+        toast("Failed to delete listing. Please try again.", "error");
+      } finally {
+        setProcessingId(null);
+      }
     }
   };
 
-  const toggleStatus = (listingId: string) => {
-    setListings(listings.map(listing => 
-      listing.id === listingId 
-        ? { ...listing, isActive: !listing.isActive }
-        : listing
-    ));
+  const handleRestore = async (listingId: string) => {
+    if (confirm("Are you sure you want to restore this listing?")) {
+      try {
+        setProcessingId(listingId);
+        const result = await restoreListing(listingId);
+        
+        if (result.success) {
+          // Update local state
+          setListings(listings.map(listing => 
+            listing.id === listingId 
+              ? { ...listing, isActive: true }
+              : listing
+          ));
+          toast(result.message || "Listing restored successfully", "success");
+        } else {
+          toast(result.message || "Failed to restore listing", "error");
+        }
+      } catch (error) {
+        console.error("Error restoring listing:", error);
+        toast("Failed to restore listing. Please try again.", "error");
+      } finally {
+        setProcessingId(null);
+      }
+    }
+  };
+
+  const handleToggleStatus = async (listingId: string) => {
+    try {
+      setProcessingId(listingId);
+      const result = await toggleListingStatus(listingId);
+      
+      if (result.success) {
+        // Update local state
+        setListings(listings.map(listing => 
+          listing.id === listingId 
+            ? { ...listing, isActive: result.isActive }
+            : listing
+        ));
+        toast(result.message, "success");
+      } else {
+        toast(result.message || "Failed to toggle listing status", "error");
+      }
+    } catch (error) {
+      console.error("Error toggling listing status:", error);
+      toast("Failed to update listing status. Please try again.", "error");
+    } finally {
+      setProcessingId(null);
+    }
   };
 
   if (loading) {
@@ -87,6 +163,27 @@ export default function MyListings({ userId, isPreview = false }: MyListingsProp
         <h2 className="text-xl font-semibold text-[var(--foreground)]">
           My Listings {!isPreview && `(${listings.length})`}
         </h2>
+        {!isPreview && (
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowDeleted(!showDeleted)}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                showDeleted 
+                  ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {showDeleted ? 'Hide Deleted' : 'Show Deleted'}
+            </button>
+            <Link
+              href="/list-room/create"
+              className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[var(--primary)]/90 transition-colors flex items-center gap-2"
+            >
+              <FaPlus size={14} />
+              Add Listing
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Listings */}
@@ -167,31 +264,50 @@ export default function MyListings({ userId, isPreview = false }: MyListingsProp
                       >
                         <FaEye size={14} />
                       </Link>
-                      <Link
-                        href={`/list-room/edit/${listing.id}`}
-                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                        title="Edit"
-                      >
-                        <FaEdit size={14} />
-                      </Link>
-                      <button
-                        onClick={() => toggleStatus(listing.id)}
-                        className={`p-2 rounded-lg transition-colors text-xs sm:text-sm ${
-                          listing.isActive
-                            ? "text-orange-600 hover:bg-orange-50"
-                            : "text-green-600 hover:bg-green-50"
-                        }`}
-                        title={listing.isActive ? "Deactivate" : "Activate"}
-                      >
-                        {listing.isActive ? "Pause" : "Activate"}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(listing.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete"
-                      >
-                        <FaTrash size={14} />
-                      </button>
+                      
+                      {listing.isActive ? (
+                        <>
+                          <Link
+                            href={`/list-room/edit/${listing.id}`}
+                            className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <FaEdit size={14} />
+                          </Link>
+                          <button
+                            onClick={() => handleToggleStatus(listing.id)}
+                            disabled={processingId === listing.id}
+                            className={`p-2 rounded-lg transition-colors text-xs sm:text-sm ${
+                              listing.isActive
+                                ? "text-orange-600 hover:bg-orange-50"
+                                : "text-green-600 hover:bg-green-50"
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            title={listing.isActive ? "Deactivate" : "Activate"}
+                          >
+                            {processingId === listing.id ? "..." : (listing.isActive ? "Pause" : "Activate")}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(listing.id)}
+                            disabled={processingId === listing.id}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Delete"
+                          >
+                            {processingId === listing.id ? "..." : <FaTrash size={14} />}
+                          </button>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded">Deleted</span>
+                          <button
+                            onClick={() => handleRestore(listing.id)}
+                            disabled={processingId === listing.id}
+                            className="px-3 py-1 text-xs font-medium text-green-600 hover:bg-green-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Restore listing"
+                          >
+                            {processingId === listing.id ? "..." : "Restore"}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

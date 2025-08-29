@@ -279,6 +279,7 @@ export async function getListingsByUser(options?: {
   page?: number;
   limit?: number;
   status?: string;
+  includeInactive?: boolean;
 }): Promise<{ listings: Listing[]; pagination: any } | null> {
   try {
     // Build query parameters
@@ -286,6 +287,7 @@ export async function getListingsByUser(options?: {
     if (options?.page) queryParams.append('page', options.page.toString());
     if (options?.limit) queryParams.append('limit', options.limit.toString());
     if (options?.status) queryParams.append('status', options.status);
+    if (options?.includeInactive) queryParams.append('includeInactive', 'true');
 
     const url = `${BACKEND_URL}/listing/my-listings${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     // console.log('Fetching user listings from:', url);
@@ -394,5 +396,114 @@ export const getUserStats = async () => {
   } catch (error) {
     console.error("Error fetching user stats:", error);
     throw error;
+  }
+};
+
+export const getListingForEdit = async (listingId: string) => {
+  try {
+    const response = await authFetch(`${BACKEND_URL}/listing/${listingId}/edit`);
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch listing for edit");
+    }
+    
+    const listing = await response.json();
+    return listing;
+  } catch (error) {
+    console.error("Error fetching listing for edit:", error);
+    throw error;
+  }
+};
+
+export const updateListing = async (listingId: string, updateData: any) => {
+  try {
+    const response = await authFetch(`${BACKEND_URL}/listing/${listingId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || "Failed to update listing");
+    }
+    
+    const updatedListing = await response.json();
+    return { success: true, listing: updatedListing };
+  } catch (error) {
+    console.error("Error updating listing:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to update listing",
+    };
+  }
+};
+
+export const toggleListingStatus = async (listingId: string) => {
+  try {
+    const response = await authFetch(`${BACKEND_URL}/listing/${listingId}/toggle-status`, {
+      method: "PUT",
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || "Failed to toggle listing status");
+    }
+    
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error toggling listing status:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to toggle listing status",
+    };
+  }
+};
+
+export const deleteListing = async (listingId: string, hardDelete: boolean = false) => {
+  try {
+    const url = `${BACKEND_URL}/listing/${listingId}${hardDelete ? '?hard=true' : ''}`;
+    const response = await authFetch(url, {
+      method: "DELETE",
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || "Failed to delete listing");
+    }
+    
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error deleting listing:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to delete listing",
+    };
+  }
+};
+
+export const restoreListing = async (listingId: string) => {
+  try {
+    const response = await authFetch(`${BACKEND_URL}/listing/${listingId}/restore`, {
+      method: "PUT",
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || "Failed to restore listing");
+    }
+    
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error restoring listing:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to restore listing",
+    };
   }
 };

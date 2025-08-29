@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post, Query, Request } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, Query, Request } from '@nestjs/common';
 import { ListingService } from './listing.service';
 import { CreateListingDto, CreateListingSchema } from './schemas/create-listing.schema';
+import { UpdateListingDto, UpdateListingSchema } from './schemas/update-listing.schema';
 import { FilterListingDto, FilterListingSchema } from './schemas/filter-listing.schema';
 import { ZodValidationPipe } from 'src/auth/pipes/zod-validation.pipe';
 import { Public } from 'src/auth/decorators/public.decorator';
@@ -34,7 +35,8 @@ getUserListings(
   @Request() req: any, 
   @Query('page') page?: string,
   @Query('limit') limit?: string,
-  @Query('status') status?: string
+  @Query('status') status?: string,
+  @Query('includeInactive') includeInactive?: string
 ) {
   const queryParams = {
     page: page ? parseInt(page, 10) : 1,
@@ -42,14 +44,48 @@ getUserListings(
     status: status && Object.values(ListingStatus).includes(status as ListingStatus) 
       ? (status as ListingStatus) 
       : undefined,
-    includeInactive: true
+    includeInactive: includeInactive === 'true' ? true : false // Only include inactive if explicitly requested
   };
   return this.listingService.findUserListings(req.user.id, queryParams);
 }
+
+  @Get(":id/edit")
+  getListingForEdit(@Param('id') id: string, @Request() req: any) {
+    return this.listingService.findByIdForEdit(id, req.user.id);
+  }
 
   @Public()
   @Get(":id")
   getListingById(@Param('id') id: string) {
     return this.listingService.findById(id);
+  }
+
+  @Put(":id")
+  updateListing(
+    @Param('id') id: string,
+    @Request() req: any,
+    @Body(new ZodValidationPipe(UpdateListingSchema)) updateListingDto: UpdateListingDto
+  ) {
+    return this.listingService.updateListing(id, updateListingDto, req.user.id);
+  }
+
+  @Put(":id/toggle-status")
+  toggleListingStatus(@Param('id') id: string, @Request() req: any) {
+    return this.listingService.toggleListingStatus(id, req.user.id);
+  }
+
+  @Put(":id/restore")
+  restoreListing(@Param('id') id: string, @Request() req: any) {
+    return this.listingService.restoreListing(id, req.user.id);
+  }
+
+  @Delete(":id")
+  deleteListing(
+    @Param('id') id: string, 
+    @Request() req: any,
+    @Query('hard') hardDelete?: string
+  ) {
+    const isHardDelete = hardDelete === 'true';
+    return this.listingService.deleteListing(id, req.user.id, isHardDelete);
   }
 }

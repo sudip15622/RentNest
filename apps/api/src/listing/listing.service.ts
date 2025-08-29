@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateListingDto } from './schemas/create-listing.schema';
+import { UpdateListingDto } from './schemas/update-listing.schema';
 import { FilterListingDto } from './schemas/filter-listing.schema';
 import { ListingStatus } from 'generated/prisma';
 
@@ -360,6 +361,246 @@ export class ListingService {
       console.error('Error fetching user listings:', error);
       throw new BadRequestException(
         'Failed to fetch user listings: ' + error.message,
+      );
+    }
+  }
+
+  async findByIdForEdit(listingId: string, userId: string) {
+    try {
+      const listing = await this.prisma.client.listing.findFirst({
+        where: {
+          id: listingId,
+          ownerId: userId
+        },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phoneNumber: true,
+              image: true,
+            }
+          }
+        }
+      });
+
+      if (!listing) {
+        throw new NotFoundException('Listing not found or you do not have permission to edit it');
+      }
+
+      return listing;
+    } catch (error) {
+      console.error('Error fetching listing for edit:', error);
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new BadRequestException(
+        'Failed to fetch listing for edit: ' + error.message,
+      );
+    }
+  }
+
+  async updateListing(listingId: string, updateData: UpdateListingDto, userId: string) {
+    try {
+      // First check if listing exists and belongs to user
+      const existingListing = await this.prisma.client.listing.findFirst({
+        where: {
+          id: listingId,
+          ownerId: userId
+        }
+      });
+
+      if (!existingListing) {
+        throw new NotFoundException('Listing not found or you do not have permission to edit it');
+      }
+
+      // Update the listing
+      const updatedListing = await this.prisma.client.listing.update({
+        where: { id: listingId },
+        data: {
+          ...updateData,
+          updatedAt: new Date(),
+        },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phoneNumber: true,
+              image: true,
+            }
+          }
+        }
+      });
+
+      return updatedListing;
+    } catch (error) {
+      console.error('Error updating listing:', error);
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new BadRequestException(
+        'Failed to update listing: ' + error.message,
+      );
+    }
+  }
+
+  async toggleListingStatus(listingId: string, userId: string) {
+    try {
+      // First check if listing exists and belongs to user
+      const existingListing = await this.prisma.client.listing.findFirst({
+        where: {
+          id: listingId,
+          ownerId: userId
+        }
+      });
+
+      if (!existingListing) {
+        throw new NotFoundException('Listing not found or you do not have permission to modify it');
+      }
+
+      // Toggle isActive status
+      const updatedListing = await this.prisma.client.listing.update({
+        where: { id: listingId },
+        data: {
+          isActive: !existingListing.isActive,
+          updatedAt: new Date(),
+        }
+      });
+
+      return {
+        success: true,
+        message: `Listing ${updatedListing.isActive ? 'activated' : 'paused'} successfully`,
+        isActive: updatedListing.isActive
+      };
+    } catch (error) {
+      console.error('Error toggling listing status:', error);
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new BadRequestException(
+        'Failed to toggle listing status: ' + error.message,
+      );
+    }
+  }
+
+  async deleteListing(listingId: string, userId: string, hardDelete: boolean = false) {
+    try {
+      // First check if listing exists and belongs to user
+      const existingListing = await this.prisma.client.listing.findFirst({
+        where: {
+          id: listingId,
+          ownerId: userId
+        }
+      });
+
+      if (!existingListing) {
+        throw new NotFoundException('Listing not found or you do not have permission to delete it');
+      }
+
+      // Check if listing has active inquiries
+      const activeInquiries = await this.prisma.client.inquiry.count({
+        where: {
+          listingId: listingId,
+          status: {
+            in: ['pending', 'responded']
+          }
+        }
+      });
+
+      if (activeInquiries > 0) {
+        throw new BadRequestException(
+          `Cannot delete listing. There are ${activeInquiries} active inquiries. Please resolve them first.`
+        );
+      }
+
+      if (hardDelete) {
+        // Hard delete - completely remove from database
+        // This will also cascade delete all related inquiries due to onDelete: Cascade
+        await this.prisma.client.listing.delete({
+          where: { id: listingId }
+        });
+
+        return {
+          success: true,
+          message: 'Listing permanently deleted successfully'
+        };
+      } else {
+        // Soft delete by setting status to inactive and isActive to false
+        // This preserves data integrity and allows for potential recovery
+        await this.prisma.client.listing.update({
+          where: { id: listingId },
+          data: {
+            status: ListingStatus.inactive,
+            isActive: false,
+            updatedAt: new Date(),
+          }
+        });
+
+        return {
+          success: true,
+          message: 'Listing deleted successfully'
+        };
+      }
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+
+      throw new BadRequestException(
+        'Failed to delete listing: ' + error.message,
+      );
+    }
+  }
+
+  async restoreListing(listingId: string, userId: string) {
+    try {
+      // First check if listing exists and belongs to user
+      const existingListing = await this.prisma.client.listing.findFirst({
+        where: {
+          id: listingId,
+          ownerId: userId,
+          isActive: false // Only restore inactive listings
+        }
+      });
+
+      if (!existingListing) {
+        throw new NotFoundException('Listing not found, already active, or you do not have permission to restore it');
+      }
+
+      // Restore the listing
+      await this.prisma.client.listing.update({
+        where: { id: listingId },
+        data: {
+          status: ListingStatus.active,
+          isActive: true,
+          updatedAt: new Date(),
+        }
+      });
+
+      return {
+        success: true,
+        message: 'Listing restored successfully'
+      };
+    } catch (error) {
+      console.error('Error restoring listing:', error);
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new BadRequestException(
+        'Failed to restore listing: ' + error.message,
       );
     }
   }
