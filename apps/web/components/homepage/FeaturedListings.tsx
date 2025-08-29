@@ -197,7 +197,7 @@ const FeaturedListings = ({
             Featured Listings
           </h2>
           <Link
-            href="/rooms"
+            href="/listings"
             className="text-[var(--primary)] hover:text-[var(--primary-dark)] font-semibold text-lg transition-colors duration-200"
           >
             View All →
