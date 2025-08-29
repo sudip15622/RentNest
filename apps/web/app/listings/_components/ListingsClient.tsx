@@ -65,7 +65,7 @@ export default function ListingsClient() {
         queryParams.append("page", page.toString());
         queryParams.append("limit", "12");
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/listing/filter?${queryParams.toString()}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/listing/filter?${queryParams.toString()}`);
         
         if (!response.ok) {
           throw new Error("Failed to fetch listings");
