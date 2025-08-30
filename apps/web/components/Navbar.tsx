@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 
-import { IoMenu } from "react-icons/io5";
+import { IoMenu, IoClose } from "react-icons/io5";
 import { MdLogout } from "react-icons/md";
 
 const Navbar = ({ user }: { user: any }) => {
@@ -13,7 +13,9 @@ const Navbar = ({ user }: { user: any }) => {
   const [showDash, setShowDash] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const showDashRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const isHomePage = pathname === "/";
   const isListRoomPage = pathname === "/list-room";
@@ -48,6 +50,12 @@ const Navbar = ({ user }: { user: any }) => {
       ) {
         setShowDash(false);
       }
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -56,11 +64,29 @@ const Navbar = ({ user }: { user: any }) => {
     };
   }, []);
 
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobileMenuOpen]);
+
   const handleSignOut = async () => {
     await fetch("/api/auth/signout");
     setLoading(false);
     setShowDash(false);
+    setIsMobileMenuOpen(false);
     router.refresh();
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -112,8 +138,8 @@ const Navbar = ({ user }: { user: any }) => {
                 className={`cursor-pointer rounded-full object-cover h-8 w-8 ring-2 transition-all duration-300 ease-out ring-[var(--primary)]/30 hover:ring-[var(--primary)]/50`}
                 src={user.image}
                 priority
-                width={50}
-                height={50}
+                width={32}
+                height={32}
                 alt="user-avatar"
               />
               <div
@@ -176,17 +202,122 @@ const Navbar = ({ user }: { user: any }) => {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          <button
-            className={`p-2 rounded-lg transition-all duration-300 ease-out ${
-              isScrolled
-                ? "hover:bg-[var(--primary-light)] text-[var(--primary)]"
-                : "hover:bg-[var(--primary-light)] text-[var(--primary)]"
-            }`}
-          >
-            <IoMenu className="w-6 h-6" />
-          </button>
+        {/* Mobile Menu Button and User Avatar */}
+        <div className="md:hidden flex items-center gap-x-2">
+          {user && (
+            <Image
+              className="rounded-full object-cover h-8 w-8 ring-2 ring-[var(--primary)]/30"
+              src={user.image}
+              priority
+              width={32}
+              height={32}
+              alt="user-avatar"
+            />
+          )}
+          <div ref={mobileMenuRef}>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={`p-2 rounded-lg transition-all duration-300 ease-out ${
+                isScrolled
+                  ? "hover:bg-[var(--primary-light)] text-[var(--primary)]"
+                  : "hover:bg-[var(--primary-light)] text-[var(--primary)]"
+              }`}
+            >
+              {isMobileMenuOpen ? (
+                <IoClose className="w-6 h-6" />
+              ) : (
+                <IoMenu className="w-6 h-6" />
+              )}
+            </button>
+
+            {/* Mobile Menu Overlay */}
+            <div
+              className={`fixed top-[70px] left-0 w-full h-[calc(100vh-70px)] bg-black/20 backdrop-blur-sm z-[998] transition-all duration-300 ease-in-out ${
+                isMobileMenuOpen
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 pointer-events-none"
+              }`}
+              onClick={closeMobileMenu}
+            />
+
+            {/* Mobile Sidebar */}
+            <div
+              className={`fixed top-[70px] right-0 w-64 max-w-[75vw] h-[calc(100vh-70px)] bg-[var(--background)]/95 backdrop-blur-md border-l border-[var(--border)]/30 shadow-2xl z-[999] transition-all duration-300 ease-in-out ${
+                isMobileMenuOpen
+                  ? "translate-x-0"
+                  : "translate-x-full"
+              }`}
+            >
+              <div className="flex flex-col h-full p-4">
+                {/* Navigation Links */}
+                <div className="flex flex-col space-y-0.5 mt-2">
+                  <Link
+                    href="/listings"
+                    onClick={closeMobileMenu}
+                    className="text-base font-medium text-[var(--foreground)] hover:text-[var(--primary-dark)] hover:bg-[var(--primary-light)] transition-all duration-200 py-2.5 px-3 rounded-lg"
+                  >
+                    Search Rooms
+                  </Link>
+                  <Link
+                    href="/list-room"
+                    onClick={closeMobileMenu}
+                    className="text-base font-medium text-[var(--foreground)] hover:text-[var(--primary-dark)] hover:bg-[var(--primary-light)] transition-all duration-200 py-2.5 px-3 rounded-lg"
+                  >
+                    List your Room
+                  </Link>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-[var(--border)]/30 my-4" />
+
+                {/* User Authentication */}
+                {user ? (
+                  <div className="flex flex-col space-y-0.5">
+                    <Link
+                      href="/dashboard"
+                      onClick={closeMobileMenu}
+                      className="text-base font-medium text-[var(--foreground)] hover:text-[var(--primary-dark)] hover:bg-[var(--primary-light)] transition-all duration-200 py-2.5 px-3 rounded-lg"
+                    >
+                      Dashboard
+                    </Link>
+                    
+                    <button
+                      onClick={() => {
+                        setLoading(true);
+                        handleSignOut();
+                      }}
+                      className="flex items-center justify-between text-base font-medium text-red-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200 py-2.5 px-3 rounded-lg"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <span>Log Out</span>
+                        <MdLogout />
+                      </div>
+                      {loading && (
+                        <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></span>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col space-y-0.5">
+                    <Link
+                      href="/login"
+                      onClick={closeMobileMenu}
+                      className="text-base font-medium text-[var(--primary)] hover:text-[var(--primary-dark)] hover:bg-[var(--primary-light)] transition-all duration-200 py-2.5 px-3 rounded-lg text-center"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/signup"
+                      onClick={closeMobileMenu}
+                      className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:from-[var(--primary-dark)] hover:to-[var(--primary)] text-white font-medium rounded-lg py-2.5 px-3 shadow-lg hover:shadow-xl transition-all duration-300 text-center"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
