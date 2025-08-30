@@ -31,7 +31,7 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ToastProvider>
-          <NextTopLoader color="#a16207" showSpinner={true} />
+          <NextTopLoader color="#a16207"/>
           <div className="min-h-screen flex flex-col">
             <Navbar user={session?.user} />
             <div className="flex-1">
