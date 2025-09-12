@@ -6,7 +6,7 @@ async function bootstrap() {
   
   // Enable CORS for frontend communication
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://rent-nest-web.vercel.app'],
+    origin: ['https://rent-nest-web.vercel.app', 'https://roomrentalplatform.netlify.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
